@@ -1,5 +1,11 @@
 # Django settings for giftme_server project.
 
+import os
+BASE_DIR = os.path.dirname(os.path.dirname(__file__))
+SETTINGS_DIR = os.path.dirname(__file__)
+PROJECT_PATH = os.path.join(SETTINGS_DIR, os.pardir)
+PROJECT_PATH = os.path.abspath(PROJECT_PATH)
+
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
