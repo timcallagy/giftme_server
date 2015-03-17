@@ -9,6 +9,8 @@ def get_csrf_token(request):
     response.set_cookie("csrftoken", get_new_csrf_key())
     return response
     """
+    context = RequestContext(request)
+    print(context)
     csrftoken = get_new_csrf_key()
     return HttpResponse(csrftoken)
 
