@@ -4,9 +4,13 @@ from django.http import HttpResponse
 from django.middleware.csrf import _get_new_csrf_key as get_new_csrf_key
 
 def get_csrf_token(request):
+    """
     response = HttpResponse(request)
     response.set_cookie("csrftoken", get_new_csrf_key())
     return response
+    """
+    csrftoken = get_new_csrf_key()
+    return HttpResponse(csrftoken)
 
 def add_gift(request):
     context = RequestContext(request)
