@@ -1,11 +1,7 @@
 from django.db import models
 
-
-class UserProfile(models.Model):
-    amazonId = models.CharField(max_length=255, blank=False, null=False, default='')
-
 class Gift(models.Model):
-    owner = models.ForeignKey(UserProfile)
+    owner_id = models.CharField(max_length=255, blank=False, null=False, default='')
     name = models.CharField(max_length=255, blank=False, null=False, default='')
     url = models.CharField(max_length=255, blank=False, null=False, default='') 
     price = models.FloatField(blank=False, null=False, default='0.0')
