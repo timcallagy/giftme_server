@@ -18,7 +18,10 @@ def add_gift(request):
     if request.method == 'POST':
         add_gift_form = GiftForm(data=request.POST)
         if add_gift_form.is_valid():
-            gift = add_gift_form.save()
+            gift = add_gift_form.save(commit=False)
+            if not gift.url.startswith("http"):
+                gift.url = "http://" + gift.url
+            gift.save()
             return HttpResponse('true')
         else:
             return HttpResponse('false')

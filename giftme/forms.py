@@ -7,5 +7,4 @@ class GiftForm(forms.ModelForm):
         fields = ('owner_id','name','url','price',)
 
     def clean(self):
-        print(self.cleaned_data)
         return self.cleaned_data
