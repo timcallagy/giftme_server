@@ -30,7 +30,7 @@ def get_gifts(request, id):
     data = serializers.serialize('json', gifts)
     return HttpResponse(data)
 
-def delete_gift(request, id):
-    Gift.objects.get(id=id).delete()
+def delete_gift(request, pk):
+    Gift.objects.get(pk=pk).delete()
     return HttpResponse()
 
