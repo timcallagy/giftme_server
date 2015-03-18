@@ -9,13 +9,6 @@ import json
 from django.core.serializers.json import DjangoJSONEncoder
 
 def get_csrf_token(request):
-    """
-    response = HttpResponse(request)
-    response.set_cookie("csrftoken", get_new_csrf_key())
-    return response
-    """
-    context = RequestContext(request)
-    print(context)
     csrftoken = get_new_csrf_key()
     return HttpResponse(csrftoken)
 
@@ -36,4 +29,8 @@ def get_gifts(request, id):
     gifts = Gift.objects.filter(owner_id = id );
     data = serializers.serialize('json', gifts)
     return HttpResponse(data)
+
+def delete_gift(request, id):
+    Gift.objects.get(id=id).delete()
+    return HttpResponse()
 
