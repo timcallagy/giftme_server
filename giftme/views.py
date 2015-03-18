@@ -30,6 +30,7 @@ def get_gifts(request, id):
     data = serializers.serialize('json', gifts)
     return HttpResponse(data)
 
+@csrf_exempt
 def delete_gift(request, pk):
     Gift.objects.get(pk=pk).delete()
     return HttpResponse()
