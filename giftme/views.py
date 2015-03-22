@@ -29,7 +29,7 @@ def add_gift(request):
             html = urlopen_res.read()
             soup = BeautifulSoup(html)
             try:
-                img = soup.find('img', {'id': 'imgBlkFront'}) or soup.find('img', {'id': 'landingImage'}) or soup.find('img', {'id': 'detailImg'})['src']
+                img = soup.find('img', {'id': 'imgBlkFront'}) or soup.find('img', {'id': 'landingImage'}) or soup.find('img', {'id': 'detailImg'})
                 pic_url = img['src']
             except TypeError:
                 pic_url = "img/generic_gift.png"
