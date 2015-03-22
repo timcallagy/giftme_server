@@ -8,6 +8,10 @@ from django.core import serializers
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
+from urllib2 import urlopen
+from bs4 import BeautifulSoup
+import urllib
+
 def get_csrf_token(request):
     csrftoken = get_new_csrf_key()
     return HttpResponse(csrftoken)
@@ -21,6 +25,12 @@ def add_gift(request):
             gift = add_gift_form.save(commit=False)
             if not gift.url.startswith("http"):
                 gift.url = "http://" + gift.url
+            urlopen_res = urlopen(gift.url)
+            html = urlopen_res.read()
+            soup = BeautifulSoup(html)
+            soup.find('img', {'id': 'imgBlkFront'})['src']
+            gift.pic = soup.find('img', {'id': 'imgBlkFront'})['src']
+            print(gift.pic)
             gift.save()
             return HttpResponse('true')
         else:
