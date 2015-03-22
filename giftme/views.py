@@ -30,9 +30,11 @@ def add_gift(request):
             soup = BeautifulSoup(html)
             img = soup.find('img', {'id': 'imgBlkFront'})
             if img is None:
-                pic_url = soup.find('img', {'id': 'landingImage'})['src']
-                if pic_url is None:
+                img = soup.find('img', {'id': 'landingImage'})
+                if img is None:
                     pic_url = soup.find('img', {'id': 'detailImg'})['src']
+                else:
+                    pic_url = img['src']
             else:
                 pic_url = img['src']
             gift.pic = pic_url
