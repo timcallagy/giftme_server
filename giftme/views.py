@@ -28,15 +28,11 @@ def add_gift(request):
             urlopen_res = urlopen(gift.url)
             html = urlopen_res.read()
             soup = BeautifulSoup(html)
-            img = soup.find('img', {'id': 'imgBlkFront'})
-            if img is None:
-                img = soup.find('img', {'id': 'landingImage'})
-                if img is None:
-                    pic_url = soup.find('img', {'id': 'detailImg'})['src']
-                else:
-                    pic_url = img['src']
-            else:
+            try:
+                img = soup.find('img', {'id': 'imgBlkFront'}) or soup.find('img', {'id': 'landingImage'}) or soup.find('img', {'id': 'detailImg'})['src']
                 pic_url = img['src']
+            except TypeError:
+                pic_url = "img/generic_gift.png"
             gift.pic = pic_url
             gift.save()
             return HttpResponse('true')
