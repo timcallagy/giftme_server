@@ -28,9 +28,12 @@ def add_gift(request):
             urlopen_res = urlopen(gift.url)
             html = urlopen_res.read()
             soup = BeautifulSoup(html)
-            soup.find('img', {'id': 'imgBlkFront'})['src']
-            gift.pic = soup.find('img', {'id': 'imgBlkFront'})['src']
-            print(gift.pic)
+            img = soup.find('img', {'id': 'imgBlkFront'})
+            if img is None:
+                pic_url = soup.find('img', {'id': 'landingImage'})['src']
+            else:
+                pic_url = img['src']
+            gift.pic = pic_url
             gift.save()
             return HttpResponse('true')
         else:
