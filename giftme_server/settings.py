@@ -15,6 +15,9 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+STRIPE_SECRET = os.environ.get('STRIPE_SECRET_KEY')
+STRIPE_PUBLISHABLE = "pk_live_rzB00nH8Ua6HTGoh77BGXtuy"
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.

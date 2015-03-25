@@ -5,12 +5,15 @@ from django.http import HttpResponse
 from django.middleware.csrf import _get_new_csrf_key as get_new_csrf_key
 from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
+from django.conf import settings
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 
 from urllib2 import urlopen
 from bs4 import BeautifulSoup
-import urllib
+#import urllib
+
+import stripe
 
 def get_csrf_token(request):
     csrftoken = get_new_csrf_key()
@@ -56,3 +59,23 @@ def delete_gift(request, pk):
     Gift.objects.get(pk=pk).delete()
     return HttpResponse()
 
+@csrf_exempt
+def pay(request, pk):
+    stripe.api_key = settings.STRIPE_SECRET
+    token = request.POST['token']
+    amount = float(request.POST['amount'])
+    try:
+        charge = stripe.Charge.create(
+                amount=int(amount*100),
+                currency="usd",
+                card=token,
+                description="GiftMe payment"
+                )
+        gift = Gift.objects.get(pk=pk)
+        gift.crowdfunded += amount
+        gift.save()
+        return HttpResponse('true')
+    except stripe.CardError, ce:
+        print("Payment failed")
+        print(ce)
+        return HttpResponse(ce)
