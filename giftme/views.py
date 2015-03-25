@@ -51,7 +51,7 @@ def get_gifts(request, id):
 
 def get_gift(request, pk):
     gift = Gift.objects.get(pk = pk );
-    data = serializers.serialize('json', gift)
+    data = serializers.serialize('json', [gift])
     return HttpResponse(data)
 
 def get_friends_gifts(request, id):
