@@ -50,7 +50,7 @@ def get_gifts(request, id):
     return HttpResponse(data)
 
 def get_gift(request, pk):
-    gifts = Gift.objects.filter(pk = pk );
+    gift = Gift.objects.get(pk = pk );
     data = serializers.serialize('json', gift)
     return HttpResponse(data)
 
