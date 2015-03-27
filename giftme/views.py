@@ -48,7 +48,7 @@ def add_gift(request):
         return HttpResponse('false')
 
 def get_gifts(request, id):
-    gifts = Gift.objects.filter(owner_id = id );
+    gifts = Gift.objects.filter(owner_id = id ).reverse();
     data = serializers.serialize('json', gifts)
     return HttpResponse(data)
 
@@ -58,7 +58,7 @@ def get_gift(request, pk):
     return HttpResponse(data)
 
 def get_friends_gifts(request, id):
-    gifts = Gift.objects.filter(owner_id = id);
+    gifts = Gift.objects.filter(owner_id = id).reverse();
     data = serializers.serialize('json', gifts)
     return HttpResponse(data)
 
