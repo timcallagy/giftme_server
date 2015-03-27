@@ -15,6 +15,9 @@ from bs4 import BeautifulSoup
 
 import stripe
 
+def wakeup(request):
+    return HttpResponse('Success')
+
 def get_csrf_token(request):
     csrftoken = get_new_csrf_key()
     return HttpResponse(csrftoken)
