@@ -1,5 +1,5 @@
 import stripe
-from urllib2 import urlopen
+import urllib2
 from bs4 import BeautifulSoup
 import datetime
 import json
@@ -29,7 +29,7 @@ def add_gift(request):
             gift = add_gift_form.save(commit=False)
             if not gift.url.startswith("http"):
                 gift.url = "http://" + gift.url
-            urlopen_res = urlopen(gift.url)
+            urlopen_res = urllib2.urlopen(gift.url)
             html = urlopen_res.read()
             soup = BeautifulSoup(html)
             try:
@@ -80,14 +80,20 @@ def pay(request, pk):
         gift = Gift.objects.get(pk=pk)
         gift.crowdfunded += amount
         gift.save()
-        contributed_by = request.POST['contributed_by']
+        contributor_id = request.POST['contributor_id']
+        contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8')
         contributed_to = gift.owner_id
         message = request.POST['message']
         timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
-        contribution = Contribution(gift=gift, contributed_by=contributed_by, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+        contribution = Contribution(gift=gift, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
         contribution.save()
         return HttpResponse('true')
     except stripe.CardError, ce:
         print("Payment failed")
         print(ce)
         return HttpResponse(ce)
+
+def get_contributions(request, pk):
+    contributions = Contribution.objects.filter(gift = pk );
+    data = serializers.serialize('json', contributions)
+    return HttpResponse(data)

@@ -13,7 +13,8 @@ class Gift(models.Model):
 
 class Contribution(models.Model):
     gift = models.ForeignKey(Gift)
-    contributed_by = models.CharField(max_length=255, blank=False, null=False, default='')
+    contributor_id = models.CharField(max_length=255, blank=False, null=False, default='')
+    contributor_name = models.CharField(max_length=255, blank=False, null=False, default='')
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
     amount = models.FloatField(blank=True, null=True, default='0')
     message = models.CharField(max_length=255, blank=False, null=False, default='')
