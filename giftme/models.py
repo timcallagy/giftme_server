@@ -1,3 +1,4 @@
+import datetime
 from django.db import models
 
 class Gift(models.Model):
@@ -9,3 +10,13 @@ class Gift(models.Model):
     crowdfunded = models.FloatField(blank=True, null=True, default='0')
     def __unicode__(self):
         return self.name
+
+class Contribution(models.Model):
+    gift = models.ForeignKey(Gift)
+    contributed_by = models.CharField(max_length=255, blank=False, null=False, default='')
+    contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
+    amount = models.FloatField(blank=True, null=True, default='0')
+    message = models.CharField(max_length=255, blank=False, null=False, default='')
+    contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.datetime.now())
+    stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
+
