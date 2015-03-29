@@ -21,4 +21,6 @@ class Contribution(models.Model):
     message = models.CharField(max_length=255, blank=True, null=True, default='')
     contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.datetime.now())
     stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
-
+    def __unicode__(self):
+        description = "$" + str(int(self.amount)) + " for " + self.gift_name + " from " + self.contributor_name
+        return description
