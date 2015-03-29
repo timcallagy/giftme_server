@@ -82,15 +82,13 @@ def pay(request, pk):
                     description="GiftMe payment"
                     )
         except stripe.CardError, ce:
-            print("Payment failed")
-            print(ce)
             return HttpResponse(ce)
         try:
             gift = Gift.objects.get(pk=pk)
             gift.crowdfunded += amount
             gift.save()
         except Gift.DoesNotExist:
-            return HttpResponse('Gift does not exist')
+            return HttpResponse('Error - Gift does not exist')
         contributor_id = request.POST['contributor_id']
         contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8')
         contributed_to = gift.owner_id
@@ -98,9 +96,10 @@ def pay(request, pk):
         timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
         contribution = Contribution(gift=gift, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
         contribution.save()
-        return HttpResponse('true')
+        data = serializers.serialize('json', [contribution])
+        return HttpResponse(data)
     else:
-        return HttpResponse('This should be a POST request')
+        return HttpResponse('Error - This should be a POST request')
 
 
 def get_contributions(request, pk):
