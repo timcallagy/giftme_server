@@ -17,7 +17,7 @@ class Contribution(models.Model):
     contributor_name = models.CharField(max_length=255, blank=False, null=False, default='')
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
     amount = models.FloatField(blank=True, null=True, default='0')
-    message = models.CharField(max_length=255, blank=False, null=False, default='')
+    message = models.CharField(max_length=255, blank=True, null=True, default='')
     contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.datetime.now())
     stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
 

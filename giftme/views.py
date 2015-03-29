@@ -51,7 +51,10 @@ def get_gifts(request, id):
     return HttpResponse(data)
 
 def get_gift(request, pk):
-    gift = Gift.objects.get(pk = pk );
+    try:
+        gift = Gift.objects.get(pk = pk );
+    except Gift.DoesNotExist:
+            return HttpResponse('Gift does not exist')
     data = serializers.serialize('json', [gift])
     return HttpResponse(data)
 
@@ -67,31 +70,37 @@ def delete_gift(request, pk):
 
 @csrf_exempt
 def pay(request, pk):
-    stripe.api_key = settings.STRIPE_SECRET
-    token = request.POST['token']
-    amount = float(request.POST['amount'])
-    try:
-        charge = stripe.Charge.create(
-                amount=int(amount*100),
-                currency="usd",
-                card=token,
-                description="GiftMe payment"
-                )
-        gift = Gift.objects.get(pk=pk)
-        gift.crowdfunded += amount
-        gift.save()
+    if request.method == 'POST':
+        stripe.api_key = settings.STRIPE_SECRET
+        token = request.POST['token']
+        amount = float(request.POST['amount'])
+        try:
+            charge = stripe.Charge.create(
+                    amount=int(amount*100),
+                    currency="usd",
+                    card=token,
+                    description="GiftMe payment"
+                    )
+        except stripe.CardError, ce:
+            print("Payment failed")
+            print(ce)
+            return HttpResponse(ce)
+        try:
+            gift = Gift.objects.get(pk=pk)
+            gift.crowdfunded += amount
+            gift.save()
+        except Gift.DoesNotExist:
+            return HttpResponse('Gift does not exist')
         contributor_id = request.POST['contributor_id']
         contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8')
         contributed_to = gift.owner_id
-        message = request.POST['message']
+        message = request.POST.get('message', '')
         timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
         contribution = Contribution(gift=gift, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
         contribution.save()
         return HttpResponse('true')
-    except stripe.CardError, ce:
-        print("Payment failed")
-        print(ce)
-        return HttpResponse(ce)
+    else:
+        return HttpResponse('This should be a POST request')
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
