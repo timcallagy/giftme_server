@@ -13,6 +13,7 @@ class Gift(models.Model):
 
 class Contribution(models.Model):
     gift = models.ForeignKey(Gift)
+    gift_name = models.CharField(max_length=255, blank=False, null=False, default='')
     contributor_id = models.CharField(max_length=255, blank=False, null=False, default='')
     contributor_name = models.CharField(max_length=255, blank=False, null=False, default='')
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')

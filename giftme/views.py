@@ -94,7 +94,7 @@ def pay(request, pk):
         contributed_to = gift.owner_id
         message = request.POST.get('message', '')
         timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
-        contribution = Contribution(gift=gift, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+        contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
         contribution.save()
         data = serializers.serialize('json', [contribution])
         return HttpResponse(data)
