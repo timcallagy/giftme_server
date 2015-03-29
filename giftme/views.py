@@ -102,6 +102,7 @@ def pay(request, pk):
     else:
         return HttpResponse('This should be a POST request')
 
+
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
     data = serializers.serialize('json', contributions)
