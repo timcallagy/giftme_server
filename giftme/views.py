@@ -90,7 +90,7 @@ def pay(request, pk):
         except Gift.DoesNotExist:
             return HttpResponse('Error - Gift does not exist')
         contributor_id = request.POST['contributor_id']
-        contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8')
+        contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8').encode('utf8')
         contributed_to = gift.owner_id
         message = request.POST.get('message', '')
         timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
