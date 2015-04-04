@@ -13,6 +13,7 @@ from django.core import serializers
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
+
 def wakeup(request):
     return HttpResponse('Success')
 
@@ -74,6 +75,10 @@ def pay(request, pk):
         stripe.api_key = settings.STRIPE_SECRET
         token = request.POST['token']
         amount = float(request.POST['amount'])
+        contributor_id = request.POST['contributor_id']
+        contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
+        message = request.POST.get('message', '')
+        timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
         try:
             charge = stripe.Charge.create(
                     amount=int(amount*100),
@@ -89,11 +94,7 @@ def pay(request, pk):
             gift.save()
         except Gift.DoesNotExist:
             return HttpResponse('Error - Gift does not exist')
-        contributor_id = request.POST['contributor_id']
-        contributor_name = urllib2.unquote(request.POST['contributor_name']).decode('utf8').encode('utf8')
         contributed_to = gift.owner_id
-        message = request.POST.get('message', '')
-        timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
         contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
         contribution.save()
         data = serializers.serialize('json', [contribution])
