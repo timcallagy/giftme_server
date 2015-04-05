@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from django.db import models
 
 class Gift(models.Model):
@@ -19,8 +19,16 @@ class Contribution(models.Model):
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
     amount = models.FloatField(blank=True, null=True, default='0')
     message = models.CharField(max_length=255, blank=True, null=True, default='')
-    contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.datetime.now())
+    contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.now())
     stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
     def __unicode__(self):
         description = "$" + str(int(self.amount)) + " for " + self.gift_name + " from " + self.contributor_name
         return description
+
+class FacebookSession(models.Model):
+    userID = models.CharField(max_length=255, blank=False, null=False, default='')
+    name = models.CharField(max_length=255, blank=False, null=False, default='')
+    accessToken = models.CharField(max_length=1020, blank=False, null=False, default='') 
+    expiryTime = models.DateTimeField(blank=False, null=False, default=datetime.now())
+    def __unicode__(self):
+        return self.name + "'s session"

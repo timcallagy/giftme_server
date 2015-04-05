@@ -1,10 +1,11 @@
 import stripe
 import urllib2
-from bs4 import BeautifulSoup
-import datetime
+import requests
 import json
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
 from giftme.forms import GiftForm
-from giftme.models import Gift, Contribution
+from giftme.models import Gift, Contribution, FacebookSession
 from django.template import RequestContext
 from django.http import HttpResponse
 from django.middleware.csrf import _get_new_csrf_key as get_new_csrf_key
@@ -13,6 +14,28 @@ from django.core import serializers
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 
+@csrf_exempt
+def login(request):
+    if request.method == 'POST':
+        accessToken = request.POST['accessToken']
+        expiresIn = int(request.POST['expiresIn'])
+        userID = request.POST['userID']
+        url = 'https://graph.facebook.com/v2.0/me?access_token=' + accessToken + '&method=get&pretty=0&sdk=joey'
+        response = (requests.get(url)).json()
+        id = response.get('id') 
+        if (id == userID):
+            expiryTime = datetime.now() + timedelta(seconds=expiresIn)
+            try:
+                session = FacebookSession.objects.get(userID=id)
+                session.accessToken = accessToken
+                session.expiryTime = expiryTime
+            except FacebookSession.DoesNotExist:
+                name = urllib2.unquote((response.get('name')).encode('ascii'))
+                session = FacebookSession(userID=userID, name=name, accessToken=accessToken, expiryTime=expiryTime)
+            session.save()
+            return HttpResponse('true')
+        else:
+            return HttpResponse('false')
 
 def wakeup(request):
     return HttpResponse('Success')
@@ -55,7 +78,7 @@ def get_gift(request, pk):
     try:
         gift = Gift.objects.get(pk = pk );
     except Gift.DoesNotExist:
-            return HttpResponse('Gift does not exist')
+        return HttpResponse('Gift does not exist')
     data = serializers.serialize('json', [gift])
     return HttpResponse(data)
 
@@ -78,7 +101,7 @@ def pay(request, pk):
         contributor_id = request.POST['contributor_id']
         contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
         message = request.POST.get('message', '')
-        timestamp = datetime.datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
+        timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
         try:
             charge = stripe.Charge.create(
                     amount=int(amount*100),
