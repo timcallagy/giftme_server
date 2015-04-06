@@ -2,6 +2,7 @@ import stripe
 import urllib2
 import requests
 import json
+import pytz
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from giftme.forms import GiftForm
@@ -24,7 +25,7 @@ def login(request):
         response = (requests.get(url)).json()
         id = response.get('id') 
         if (id == userID):
-            expiryTime = datetime.now() + timedelta(seconds=expiresIn)
+            expiryTime = datetime.now().replace(tzinfo=pytz.utc) + timedelta(seconds=expiresIn)
             try:
                 session = FacebookSession.objects.get(userID=id)
                 session.accessToken = accessToken
@@ -89,8 +90,23 @@ def get_friends_gifts(request, id):
 
 @csrf_exempt
 def delete_gift(request, pk):
+    """ This code does authorization check
+    accessToken=request.POST['accessToken']
+    userID=request.POST['userID']
+    try:
+        facebookSession = FacebookSession.objects.get(userID=userID)
+        if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
+            Gift.objects.get(pk=pk).delete()
+            return HttpResponse('true')
+        else:
+            return HttpResponse('false')
+    except FacebookSession.DoesNotExist:
+        return HttpResponse('false')
+    """
     Gift.objects.get(pk=pk).delete()
-    return HttpResponse()
+    return HttpResponse('true')
+
+
 
 @csrf_exempt
 def pay(request, pk):
@@ -102,6 +118,7 @@ def pay(request, pk):
         contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
         message = request.POST.get('message', '')
         timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
+        accessToken = request.POST['accessToken']
         try:
             charge = stripe.Charge.create(
                     amount=int(amount*100),
@@ -124,7 +141,46 @@ def pay(request, pk):
         return HttpResponse(data)
     else:
         return HttpResponse('Error - This should be a POST request')
-
+        """ This code does authorization check
+    if request.method == 'POST':
+        try:
+            contributor_id = request.POST['contributor_id']
+            facebookSession = FacebookSession.objects.get(userID=contributor_id)
+            accessToken = request.POST['accessToken']
+            if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
+                stripe.api_key = settings.STRIPE_SECRET
+                token = request.POST['token']
+                amount = float(request.POST['amount'])
+                contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
+                message = request.POST.get('message', '')
+                timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
+                try:
+                    charge = stripe.Charge.create(
+                            amount=int(amount*100),
+                            currency="usd",
+                            card=token,
+                            description="GiftMe payment"
+                            )
+                except stripe.CardError, ce:
+                    return HttpResponse(ce)
+                try:
+                    gift = Gift.objects.get(pk=pk)
+                    gift.crowdfunded += amount
+                    gift.save()
+                except Gift.DoesNotExist:
+                    return HttpResponse('Error - Gift does not exist')
+                contributed_to = gift.owner_id
+                contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+                contribution.save()
+                data = serializers.serialize('json', [contribution])
+                return HttpResponse(data)
+            else:
+                return HttpResponse('Error - not authorized')
+        except FacebookSession.DoesNotExist:
+            return HttpResponse('Error - not authenticated')
+    else:
+        return HttpResponse('Error - This should be a POST request')
+    """
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
