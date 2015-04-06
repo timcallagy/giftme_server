@@ -47,8 +47,42 @@ def get_csrf_token(request):
 
 @csrf_exempt
 def add_gift(request):
-    context = RequestContext(request)
+    """
     if request.method == 'POST':
+        accessToken=request.POST['accessToken']
+        userID=request.POST['userID']
+        try:
+            facebookSession = FacebookSession.objects.get(userID=userID)
+            if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
+                add_gift_form = GiftForm(data=request.POST)
+                if add_gift_form.is_valid():
+                    gift = add_gift_form.save(commit=False)
+                    if not gift.url.startswith("http"):
+                        gift.url = "http://" + gift.url
+                    try:
+                        urlopen_res = urllib2.urlopen(gift.url)
+                    except:
+                        return HttpResponse('Invalid URL')
+                    html = urlopen_res.read()
+                    soup = BeautifulSoup(html)
+                    try:
+                        img = soup.find('img', {'id': 'imgBlkFront'}) or soup.find('img', {'id': 'landingImage'}) or soup.find('img', {'id': 'detailImg'})
+                        pic_url = img['src']
+                    except TypeError:
+                        pic_url = "img/generic_gift.png"
+                    gift.pic = pic_url
+                    gift.save()
+                    return HttpResponse('true')
+                else:
+                    return HttpResponse('Invalid amount')
+            else:
+                return HttpResponse('Error - not authorized')
+        except FacebookSession.DoesNotExist:
+            return HttpResponse('Error - not authenticated')
+    else:
+        return HttpResponse('false')
+    """
+    context = RequestContext(request)
         add_gift_form = GiftForm(data=request.POST)
         if add_gift_form.is_valid():
             gift = add_gift_form.save(commit=False)
@@ -69,6 +103,7 @@ def add_gift(request):
             return HttpResponse('false')
     else:
         return HttpResponse('false')
+
 
 def get_gifts(request, id):
     gifts = Gift.objects.filter(owner_id = id ).order_by('-crowdfunded');
@@ -110,38 +145,7 @@ def delete_gift(request, pk):
 
 @csrf_exempt
 def pay(request, pk):
-    if request.method == 'POST':
-        stripe.api_key = settings.STRIPE_SECRET
-        token = request.POST['token']
-        amount = float(request.POST['amount'])
-        contributor_id = request.POST['contributor_id']
-        contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
-        message = request.POST.get('message', '')
-        timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
-        accessToken = request.POST['accessToken']
-        try:
-            charge = stripe.Charge.create(
-                    amount=int(amount*100),
-                    currency="usd",
-                    card=token,
-                    description="GiftMe payment"
-                    )
-        except stripe.CardError, ce:
-            return HttpResponse(ce)
-        try:
-            gift = Gift.objects.get(pk=pk)
-            gift.crowdfunded += amount
-            gift.save()
-        except Gift.DoesNotExist:
-            return HttpResponse('Error - Gift does not exist')
-        contributed_to = gift.owner_id
-        contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
-        contribution.save()
-        data = serializers.serialize('json', [contribution])
-        return HttpResponse(data)
-    else:
-        return HttpResponse('Error - This should be a POST request')
-        """ This code does authorization check
+    """ This code does authorization check
     if request.method == 'POST':
         try:
             contributor_id = request.POST['contributor_id']
@@ -181,6 +185,37 @@ def pay(request, pk):
     else:
         return HttpResponse('Error - This should be a POST request')
     """
+    if request.method == 'POST':
+        stripe.api_key = settings.STRIPE_SECRET
+        token = request.POST['token']
+        amount = float(request.POST['amount'])
+        contributor_id = request.POST['contributor_id']
+        contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
+        message = request.POST.get('message', '')
+        timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
+        accessToken = request.POST['accessToken']
+        try:
+            charge = stripe.Charge.create(
+                    amount=int(amount*100),
+                    currency="usd",
+                    card=token,
+                    description="GiftMe payment"
+                    )
+        except stripe.CardError, ce:
+            return HttpResponse(ce)
+        try:
+            gift = Gift.objects.get(pk=pk)
+            gift.crowdfunded += amount
+            gift.save()
+        except Gift.DoesNotExist:
+            return HttpResponse('Error - Gift does not exist')
+        contributed_to = gift.owner_id
+        contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+        contribution.save()
+        data = serializers.serialize('json', [contribution])
+        return HttpResponse(data)
+    else:
+        return HttpResponse('Error - This should be a POST request')
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
