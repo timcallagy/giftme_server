@@ -83,6 +83,7 @@ def add_gift(request):
         return HttpResponse('false')
     """
     context = RequestContext(request)
+    if request.method == 'POST':
         add_gift_form = GiftForm(data=request.POST)
         if add_gift_form.is_valid():
             gift = add_gift_form.save(commit=False)
