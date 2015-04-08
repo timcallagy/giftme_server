@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core import serializers
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
+import logging
 
 @csrf_exempt
 def login(request):
@@ -38,8 +39,24 @@ def login(request):
         else:
             return HttpResponse('false')
 
+@csrf_exempt
 def wakeup(request):
-    return HttpResponse('Success')
+    supportedVersions = ['0.0.21']
+    logger = logging.getLogger('giftme')
+    logger.debug('In wakeup function.')
+    if request.method == 'POST':
+        clientVersion = request.POST['clientVersion']
+        logger.debug('Client version: ' + str(clientVersion) + '.')
+        if clientVersion in supportedVersions:
+            logger.debug('Supported client version: ' + str(clientVersion) + '.')
+            return HttpResponse('Success')
+        else:
+            logger.debug('Unsupported client version: ' + str(clientVersion) + '.')
+            return HttpResponse('Unsupported client version. Please update!')
+    else:
+        return HttpResponse('Error')
+
+    #return HttpResponse('Success')
 
 def get_csrf_token(request):
     csrftoken = get_new_csrf_key()
