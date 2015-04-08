@@ -47,7 +47,6 @@ def get_csrf_token(request):
 
 @csrf_exempt
 def add_gift(request):
-    """
     if request.method == 'POST':
         accessToken=request.POST['accessToken']
         userID=request.POST['userID']
@@ -104,6 +103,7 @@ def add_gift(request):
             return HttpResponse('false')
     else:
         return HttpResponse('false')
+    """
 
 
 def get_gifts(request, id):
@@ -126,7 +126,6 @@ def get_friends_gifts(request, id):
 
 @csrf_exempt
 def delete_gift(request, pk):
-    """ This code does authorization check
     accessToken=request.POST['accessToken']
     userID=request.POST['userID']
     try:
@@ -141,12 +140,12 @@ def delete_gift(request, pk):
     """
     Gift.objects.get(pk=pk).delete()
     return HttpResponse('true')
+    """
 
 
 
 @csrf_exempt
 def pay(request, pk):
-    """ This code does authorization check
     if request.method == 'POST':
         try:
             contributor_id = request.POST['contributor_id']
@@ -217,6 +216,7 @@ def pay(request, pk):
         return HttpResponse(data)
     else:
         return HttpResponse('Error - This should be a POST request')
+    """
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
