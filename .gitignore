@@ -1,0 +1,5 @@
+devEnv
+testEnv
+*.pyc
+*.swp
+*.swo
