@@ -57,7 +57,8 @@ def wakeup(request):
             return HttpResponse('Success')
         else:
             logger.debug('Unsupported client version: ' + str(clientVersion) + '.')
-            return HttpResponse('Unsupported client version. Please update!')
+            data = json.dumps({'message': 'Unsupported client version. Update at:', 'url': 'https://play.google.com/store/apps/details?id=co.giftmeapp.gift_me'})
+            return HttpResponse(data) 
     else:
         return HttpResponse('Error')
 
