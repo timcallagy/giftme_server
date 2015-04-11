@@ -180,7 +180,10 @@ def pay(request, pk):
         except FacebookSession.DoesNotExist:
             return HttpResponse('Error - not authenticated')
     else:
-        return HttpResponse('Error - This should be a POST request')
+        return HttpResponse('Error - This should be a POST requet')
+
+
+    HttpResppose({'message': "Error!", 'url': 'google.com'})
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
