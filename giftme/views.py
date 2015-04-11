@@ -200,7 +200,10 @@ def settings(request, id):
         try:
             facebookSession = FacebookSession.objects.get(userID=userID)
             if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
-                facebookSession.receiveEmails=request.POST['receiveEmails']
+                if request.POST['receiveEmails'] == 'true':
+                    facebookSession.receiveEmails=True
+                else:
+                    facebookSession.receiveEmails=False
                 birthday_day=request.POST['birthday_day']
                 birthday_month=request.POST['birthday_month']
                 facebookSession.birthday=date(1900, int(birthday_month), int(birthday_day))
