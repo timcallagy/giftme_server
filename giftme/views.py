@@ -200,7 +200,8 @@ def settings(request, id):
         try:
             facebookSession = FacebookSession.objects.get(userID=userID)
             if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
-                if request.POST['receiveEmails'] == 'true':
+                receiveEmails = request.POST['receiveEmails']
+                if receiveEmails == 'true':
                     facebookSession.receiveEmails=True
                 else:
                     facebookSession.receiveEmails=False

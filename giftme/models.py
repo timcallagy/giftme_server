@@ -29,7 +29,7 @@ class FacebookSession(models.Model):
     userID = models.CharField(max_length=255, blank=False, null=False, default='')
     name = models.CharField(max_length=255, blank=False, null=False, default='')
     email = models.CharField(max_length=255, blank=False, null=False, default='')
-    receive_emails = models.BooleanField(blank=True, default=True)
+    receiveEmails = models.BooleanField(blank=True, default=True)
     accessToken = models.CharField(max_length=1020, blank=False, null=False, default='') 
     expiryTime = models.DateTimeField(blank=False, null=False, default=datetime.now())
     birthday = models.DateTimeField(blank=True, null=True, default=datetime.now())
