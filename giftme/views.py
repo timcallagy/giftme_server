@@ -5,7 +5,7 @@ import json
 import pytz
 import logging
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from giftme.forms import GiftForm
 from giftme.models import Gift, Contribution, FacebookSession
 from django.template import RequestContext
@@ -190,6 +190,30 @@ def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
     data = serializers.serialize('json', contributions)
     return HttpResponse(data)
+
+
+@csrf_exempt
+def settings(request, id):
+    if request.method == 'POST':
+        accessToken=request.POST['accessToken']
+        userID=request.POST['userID']
+        try:
+            facebookSession = FacebookSession.objects.get(userID=userID)
+            if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
+                facebookSession.receiveEmails=request.POST['receiveEmails']
+                birthday_day=request.POST['birthday_day']
+                birthday_month=request.POST['birthday_month']
+                facebookSession.birthday=date(1900, int(birthday_month), int(birthday_day))
+                facebookSession.save()
+                return HttpResponse('true')
+            else:
+                return HttpResponse('Error - not authorized')
+        except FacebookSession.DoesNotExist:
+            return HttpResponse('Error - not authenticated')
+    elif request.method == 'GET':
+        settings = FacebookSession.objects.filter(userID = id)
+        data = serializers.serialize('json', settings)
+        return HttpResponse(data)
 
 
 ################################
