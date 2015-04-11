@@ -36,8 +36,10 @@ def login(request):
                 session.accessToken = accessToken
                 session.expiryTime = expiryTime
             except FacebookSession.DoesNotExist:
-                name = urllib2.unquote((response.get('name')).encode('ascii'))
-                email = urllib2.unquote((response.get('email', '')).encode('ascii'))
+                #name = urllib2.unquote((response.get('name')).encode('ascii'))
+                name = urllib2.unquote((response.get('name')).decode('utf-8'))
+                #email = urllib2.unquote((response.get('email', '')).encode('ascii'))
+                email = urllib2.unquote((response.get('email', '')).decode('utf-8'))
                 session = FacebookSession(userID=userID, name=name, accessToken=accessToken, expiryTime=expiryTime, email=email)
             session.save()
             return HttpResponse('true')
