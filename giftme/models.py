@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from django.db import models
 
 class Gift(models.Model):
@@ -32,6 +32,6 @@ class FacebookSession(models.Model):
     receiveEmails = models.BooleanField(blank=True, default=True)
     accessToken = models.CharField(max_length=1020, blank=False, null=False, default='') 
     expiryTime = models.DateTimeField(blank=False, null=False, default=datetime.now())
-    birthday = models.DateTimeField(blank=True, null=True, default=datetime.now())
+    birthday = models.DateTimeField(blank=True, null=True, default=date(1900, 01, 01))
     def __unicode__(self):
         return self.name + "'s session"

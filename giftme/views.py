@@ -173,7 +173,7 @@ def pay(request, pk):
                 # Send notification email to gift receiver
                 receiver_session = FacebookSession.objects.get(userID=contributed_to)
                 if receiver_session.email:
-                    send_giftme_email(receiver_session.email, 'You have received a gift contribution!', 'gift_contribution', {'contributor_name': contributor_name, 'gift_name': gift.name, 'gift_amount': amount, 'message': message }, True)
+                    send_giftme_email(receiver_session.email, 'You have received a gift contribution!', 'gift_contribution', {'contributor_name': contributor_name, 'gift_name': gift.name, 'gift_amount': amount, 'message': message }, facebookSession.receiveEmails)
                 data = serializers.serialize('json', [contribution])
                 return HttpResponse(data)
             else:
@@ -209,7 +209,8 @@ def settings(request, id):
                 birthday_month=request.POST['birthday_month']
                 facebookSession.birthday=date(1900, int(birthday_month), int(birthday_day))
                 facebookSession.save()
-                return HttpResponse('true')
+                data = serializers.serialize('json', {facebookSession})
+                return HttpResponse(data)
             else:
                 return HttpResponse('Error - not authorized')
         except FacebookSession.DoesNotExist:
