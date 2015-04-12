@@ -36,11 +36,10 @@ def login(request):
                 session.accessToken = accessToken
                 session.expiryTime = expiryTime
             except FacebookSession.DoesNotExist:
-                #name = urllib2.unquote((response.get('name')).encode('ascii'))
                 name = response.get('name').encode('utf-8')
-                #email = urllib2.unquote((response.get('email', '')).encode('ascii'))
                 email = response.get('email', '').encode('utf-8')
-                session = FacebookSession(userID=userID, name=name, accessToken=accessToken, expiryTime=expiryTime, email=email)
+                joined_date = datetime.utcnow().replace(tzinfo=pytz.utc)
+                session = FacebookSession(userID=userID, name=name, accessToken=accessToken, expiryTime=expiryTime, email=email, joined_date=joined_date)
             session.save()
             return HttpResponse('true')
         else:
@@ -93,6 +92,9 @@ def add_gift(request):
                     except TypeError:
                         pic_url = "img/generic_gift.png"
                     gift.pic = pic_url
+                    timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
+                    gift.added_date = timestamp
+                    gift.owner_name = urllib2.unquote((request.POST['userName']).encode('ascii'))
                     gift.save()
                     return HttpResponse('true')
                 else:
@@ -150,6 +152,7 @@ def pay(request, pk):
                 token = request.POST['token']
                 amount = float(request.POST['amount'])
                 contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
+                contributed_to_name = urllib2.unquote((request.POST['contributed_to_name']).encode('ascii'))
                 message = request.POST.get('message', '')
                 timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
                 try:
@@ -168,7 +171,7 @@ def pay(request, pk):
                 except Gift.DoesNotExist:
                     return HttpResponse('Error - Gift does not exist')
                 contributed_to = gift.owner_id
-                contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+                contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
                 contribution.save()
                 # Send notification email to gift receiver
                 receiver_session = FacebookSession.objects.get(userID=contributed_to)
@@ -193,7 +196,7 @@ def get_contributions(request, pk):
 
 
 @csrf_exempt
-def settings(request, id):
+def user_settings(request, id):
     if request.method == 'POST':
         accessToken=request.POST['accessToken']
         userID=request.POST['userID']
@@ -216,8 +219,8 @@ def settings(request, id):
         except FacebookSession.DoesNotExist:
             return HttpResponse('Error - not authenticated')
     elif request.method == 'GET':
-        settings = FacebookSession.objects.filter(userID = id)
-        data = serializers.serialize('json', settings)
+        my_settings = FacebookSession.objects.filter(userID = id)
+        data = serializers.serialize('json', my_settings)
         return HttpResponse(data)
 
 

@@ -12,5 +12,5 @@ urlpatterns = patterns('',
         url(r'^delete_gift/(?P<pk>[0-9]+)/$', views.delete_gift),
         url(r'^pay/(?P<pk>[0-9]+)/$', views.pay),
         url(r'^get_contributions/(?P<pk>[0-9]+)/$', views.get_contributions),
-        url(r'^settings/(?P<id>[0-9]+)/$', views.settings),
+        url(r'^user_settings/(?P<id>[0-9]+)/$', views.user_settings),
 )
