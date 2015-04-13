@@ -231,9 +231,14 @@ def get_notifications(request, id):
     for f in data:
         friendIDs.append(f.get('id'))
     #friendsIDs.append(id)
-    contributions = Contribution.objects.filter(contributor_id__in = friendIDs).order_by('-contribution_date')
-    data = serializers.serialize('json', contributions)
-    return HttpResponse(data)
+    contributions = Contribution.objects.filter(contributed_to__in = friendIDs).order_by('-contribution_date')[:6]
+    time_period = datetime.now() - timedelta(days=7)
+    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period).order_by('-joined_date')[:3]
+    contributions = serializers.serialize('json', contributions)
+    recent_friends = serializers.serialize('json', recent_friends)
+    combined_data = {'contributions': contributions, 'recent_friends': recent_friends}
+    return HttpResponse(json.dumps(combined_data))
+
 
 
 ################################
