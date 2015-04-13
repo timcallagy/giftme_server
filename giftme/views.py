@@ -171,7 +171,7 @@ def pay(request, pk):
                 except Gift.DoesNotExist:
                     return HttpResponse('Error - Gift does not exist')
                 contributed_to = gift.owner_id
-                contribution = Contribution(gift=gift, gift_name= gift.name, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
+                contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
                 contribution.save()
                 # Send notification email to gift receiver
                 receiver_session = FacebookSession.objects.get(userID=contributed_to)
@@ -184,10 +184,7 @@ def pay(request, pk):
         except FacebookSession.DoesNotExist:
             return HttpResponse('Error - not authenticated')
     else:
-        return HttpResponse('Error - This should be a POST requet')
-
-
-    HttpResppose({'message': "Error!", 'url': 'google.com'})
+        return HttpResponse('Error - This should be a POST request')
 
 def get_contributions(request, pk):
     contributions = Contribution.objects.filter(gift = pk );
@@ -222,6 +219,21 @@ def user_settings(request, id):
         my_settings = FacebookSession.objects.filter(userID = id)
         data = serializers.serialize('json', my_settings)
         return HttpResponse(data)
+
+
+@csrf_exempt
+def get_notifications(request, id):
+    accessToken=request.POST['accessToken']
+    url = 'https://graph.facebook.com/v2.0/me/friends?access_token=' + accessToken + '&method=get&pretty=0&sdk=joey'
+    response = (requests.get(url)).json()
+    data = response.get('data')
+    friendIDs = []
+    for f in data:
+        friendIDs.append(f.get('id'))
+    #friendsIDs.append(id)
+    contributions = Contribution.objects.filter(contributor_id__in = friendIDs).order_by('-contribution_date')
+    data = serializers.serialize('json', contributions)
+    return HttpResponse(data)
 
 
 ################################

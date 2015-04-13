@@ -17,6 +17,7 @@ class Gift(models.Model):
 class Contribution(models.Model):
     gift = models.ForeignKey(Gift)
     gift_name = models.CharField(max_length=255, blank=False, null=False, default='')
+    gift_pic = models.CharField(max_length=255, blank=False, null=False, default='')
     contributor_id = models.CharField(max_length=255, blank=False, null=False, default='')
     contributor_name = models.CharField(max_length=255, blank=False, null=False, default='')
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
@@ -26,7 +27,7 @@ class Contribution(models.Model):
     contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.now())
     stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
     def __unicode__(self):
-        description = self.contributor_name + " gave US$ " + str(int(self.amount)) + " to " + self.contributed_to_name + " for " + self.gift_name
+        description = self.contributor_name + " gave US$ " + str(int(self.amount)) + " to " + self.contributed_to_name + " for '" + self.gift_name + "'"
         return description
 
 class FacebookSession(models.Model):
