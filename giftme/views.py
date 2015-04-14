@@ -38,6 +38,7 @@ def login(request):
             except FacebookSession.DoesNotExist:
                 name = response.get('name').encode('utf-8')
                 email = response.get('email', '').encode('utf-8')
+                gender = response.get('gender', '').encode('utf-8')
                 joined_date = datetime.utcnow().replace(tzinfo=pytz.utc)
                 session = FacebookSession(userID=userID, name=name, accessToken=accessToken, expiryTime=expiryTime, email=email, joined_date=joined_date)
             session.save()
@@ -230,13 +231,29 @@ def get_notifications(request, id):
     friendIDs = []
     for f in data:
         friendIDs.append(f.get('id'))
-    #friendsIDs.append(id)
-    contributions = Contribution.objects.filter(contributed_to__in = friendIDs).order_by('-contribution_date')[:6]
+    
+    gifts = Gift.objects.filter(owner_id__in = friendIDs).order_by('-added_date')[:4]
+    
+    # Also add this user's id to the list, so that his/her contributions are also found.
+    friendIDs.append(id)
+
+    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).order_by('-contribution_date')[:4]
+    for c in contributions_to:
+        if c.contributed_to == id:
+            c.contributed_to_name = 'You'
+
+    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).order_by('-contribution_date')[:4]
+    for c in contributions_from:
+        if c.contributor_id == id:
+            c.contributor_name = 'You'
+
     time_period = datetime.now() - timedelta(days=7)
     recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period).order_by('-joined_date')[:3]
-    contributions = serializers.serialize('json', contributions)
+    gifts = serializers.serialize('json', gifts)
+    contributions_to = serializers.serialize('json', contributions_to)
+    contributions_from = serializers.serialize('json', contributions_from)
     recent_friends = serializers.serialize('json', recent_friends)
-    combined_data = {'contributions': contributions, 'recent_friends': recent_friends}
+    combined_data = {'contributions_to': contributions_to, 'contributions_from': contributions_from, 'recent_friends': recent_friends, 'gifts': gifts}
     return HttpResponse(json.dumps(combined_data))
 
 

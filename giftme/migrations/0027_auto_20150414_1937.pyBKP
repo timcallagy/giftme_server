@@ -1,0 +1,45 @@
+# -*- coding: utf-8 -*-
+from __future__ import unicode_literals
+
+from django.db import models, migrations
+import datetime
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ('giftme', '0026_auto_20150414_1934'),
+    ]
+
+    operations = [
+        migrations.AlterField(
+            model_name='contribution',
+            name='contribution_date',
+            field=models.DateTimeField(default=datetime.datetime(2015, 4, 14, 19, 37, 25, 738993)),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='facebooksession',
+            name='expiryTime',
+            field=models.DateTimeField(default=datetime.datetime(2015, 4, 14, 19, 37, 25, 743021)),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='facebooksession',
+            name='gender',
+            field=models.BooleanField(default=b''),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='facebooksession',
+            name='joined_date',
+            field=models.DateTimeField(default=datetime.datetime(2015, 4, 14, 19, 37, 25, 743305)),
+            preserve_default=True,
+        ),
+        migrations.AlterField(
+            model_name='gift',
+            name='added_date',
+            field=models.DateTimeField(default=datetime.datetime(2015, 4, 14, 19, 37, 25, 735269)),
+            preserve_default=True,
+        ),
+    ]
