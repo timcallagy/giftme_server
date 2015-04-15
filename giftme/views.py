@@ -232,32 +232,38 @@ def get_notifications(request, id):
     for f in data:
         friendIDs.append(f.get('id'))
     
-    gifts = Gift.objects.filter(owner_id__in = friendIDs).order_by('-added_date')[:4]
+    gifts = Gift.objects.filter(owner_id__in = friendIDs).values('owner_id', 'owner_name', 'name').order_by('-added_date')[:4]
+    gifts = list(gifts)
 
     now = (datetime.now().replace(year=1900))
     now_plus_1_month = now + timedelta(days=30)
-    birthdays = FacebookSession.objects.filter(birthday__gt = now, birthday__lt = now_plus_1_month)
+    birthdays = FacebookSession.objects.filter(birthday__gt = now, birthday__lt = now_plus_1_month).values('userID','name')
+    birthdays = list(birthdays)
     
     # Also add this user's id to the list, so that his/her contributions are also found.
     friendIDs.append(id)
 
-    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).order_by('-contribution_date')[:4]
+    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).values('contributed_to', 'contributed_to_name', 'gift', 'gift_name').order_by('-contribution_date')[:4]
+    contributions_to = list(contributions_to)
     for c in contributions_to:
-        if c.contributed_to == id:
-            c.contributed_to_name = 'You'
+        if c['contributed_to'] == id:
+            c['contributed_to_name'] = 'You'
 
-    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).order_by('-contribution_date')[:4]
+    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).values('contributor_id', 'contributor_name', 'gift', 'gift_name').order_by('-contribution_date')[:4]
+    contributions_from = list(contributions_from)
     for c in contributions_from:
-        if c.contributor_id == id:
-            c.contributor_name = 'You'
+        if c['contributor_id'] == id:
+            c['contributor_name'] = 'You'
 
     time_period_week = datetime.now() - timedelta(days=7)
-    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period_week).order_by('-joined_date')[:3]
-    birthdays = serializers.serialize('json', birthdays)
-    gifts = serializers.serialize('json', gifts)
-    contributions_to = serializers.serialize('json', contributions_to)
-    contributions_from = serializers.serialize('json', contributions_from)
-    recent_friends = serializers.serialize('json', recent_friends)
+    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period_week).values('userID', 'name').order_by('-joined_date')[:3]
+    recent_friends = list(recent_friends)
+
+    birthdays = json.dumps(birthdays)
+    gifts = json.dumps(gifts)
+    contributions_to = json.dumps(contributions_to)
+    contributions_from = json.dumps(contributions_from)
+    recent_friends = json.dumps(recent_friends)
     combined_data = {'contributions_to': contributions_to, 'contributions_from': contributions_from, 'recent_friends': recent_friends, 'gifts': gifts, 'birthdays': birthdays}
     return HttpResponse(json.dumps(combined_data))
 
