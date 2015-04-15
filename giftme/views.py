@@ -233,6 +233,10 @@ def get_notifications(request, id):
         friendIDs.append(f.get('id'))
     
     gifts = Gift.objects.filter(owner_id__in = friendIDs).order_by('-added_date')[:4]
+
+    now = (datetime.now().replace(year=1900))
+    now_plus_1_month = now + timedelta(days=30)
+    birthdays = FacebookSession.objects.filter(birthday__gt = now, birthday__lt = now_plus_1_month)
     
     # Also add this user's id to the list, so that his/her contributions are also found.
     friendIDs.append(id)
@@ -247,13 +251,14 @@ def get_notifications(request, id):
         if c.contributor_id == id:
             c.contributor_name = 'You'
 
-    time_period = datetime.now() - timedelta(days=7)
-    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period).order_by('-joined_date')[:3]
+    time_period_week = datetime.now() - timedelta(days=7)
+    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period_week).order_by('-joined_date')[:3]
+    birthdays = serializers.serialize('json', birthdays)
     gifts = serializers.serialize('json', gifts)
     contributions_to = serializers.serialize('json', contributions_to)
     contributions_from = serializers.serialize('json', contributions_from)
     recent_friends = serializers.serialize('json', recent_friends)
-    combined_data = {'contributions_to': contributions_to, 'contributions_from': contributions_from, 'recent_friends': recent_friends, 'gifts': gifts}
+    combined_data = {'contributions_to': contributions_to, 'contributions_from': contributions_from, 'recent_friends': recent_friends, 'gifts': gifts, 'birthdays': birthdays}
     return HttpResponse(json.dumps(combined_data))
 
 
