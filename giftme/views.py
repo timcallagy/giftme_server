@@ -172,6 +172,8 @@ def pay(request, pk):
                 except Gift.DoesNotExist:
                     return HttpResponse('Error - Gift does not exist')
                 contributed_to = gift.owner_id
+                print('Contributed to:')
+                print(contributed_to_name)
                 contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
                 contribution.save()
                 # Send notification email to gift receiver
@@ -232,7 +234,7 @@ def get_notifications(request, id):
     for f in data:
         friendIDs.append(f.get('id'))
     
-    gifts = Gift.objects.filter(owner_id__in = friendIDs).values('owner_id', 'owner_name', 'name').order_by('-added_date')[:4]
+    gifts = Gift.objects.filter(owner_id__in = friendIDs).values('id', 'owner_id', 'owner_name', 'name').order_by('-added_date')[:4]
     gifts = list(gifts)
 
     now = (datetime.now().replace(year=1900))
@@ -243,13 +245,13 @@ def get_notifications(request, id):
     # Also add this user's id to the list, so that his/her contributions are also found.
     friendIDs.append(id)
 
-    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).values('contributed_to', 'contributed_to_name', 'gift', 'gift_name').order_by('-contribution_date')[:4]
+    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).values('contributed_to', 'contributed_to_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:4]
     contributions_to = list(contributions_to)
     for c in contributions_to:
         if c['contributed_to'] == id:
             c['contributed_to_name'] = 'You'
 
-    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).values('contributor_id', 'contributor_name', 'gift', 'gift_name').order_by('-contribution_date')[:4]
+    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).values('contributor_id', 'contributor_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:4]
     contributions_from = list(contributions_from)
     for c in contributions_from:
         if c['contributor_id'] == id:
