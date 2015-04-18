@@ -190,9 +190,14 @@ def pay(request, pk):
         return HttpResponse('Error - This should be a POST request')
 
 def get_contributions(request, pk):
-    contributions = Contribution.objects.filter(gift = pk );
-    data = serializers.serialize('json', contributions)
-    return HttpResponse(data)
+    gift = Gift.objects.filter(pk = pk).values('id', 'owner_id', 'owner_name', 'name', 'price', 'crowdfunded', 'pic')
+    gift = list(gift)
+    contributions_to = Contribution.objects.filter(gift_id = pk).values('contributor_id', 'contributor_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')
+    contributions_to = list(contributions_to)
+    gift = json.dumps(gift)
+    contributions_to = json.dumps(contributions_to)
+    combined_data = {'contributions_to': contributions_to, 'gift': gift}
+    return HttpResponse(json.dumps(combined_data))
 
 
 @csrf_exempt
@@ -247,13 +252,13 @@ def get_notifications(request, id):
     # Also add this user's id to the list, so that his/her contributions are also found.
     friendIDs.append(id)
 
-    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).values('contributed_to', 'contributed_to_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:4]
+    contributions_to = Contribution.objects.filter(contributed_to__in = friendIDs).values('contributed_to', 'contributed_to_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:2]
     contributions_to = list(contributions_to)
     for c in contributions_to:
         if c['contributed_to'] == id:
             c['contributed_to_name'] = 'You'
 
-    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).values('contributor_id', 'contributor_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:4]
+    contributions_from = Contribution.objects.filter(contributor_id__in = friendIDs).values('contributor_id', 'contributor_name', 'gift', 'gift_name', 'amount').order_by('-contribution_date')[:2]
     contributions_from = list(contributions_from)
     for c in contributions_from:
         if c['contributor_id'] == id:
