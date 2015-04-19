@@ -239,7 +239,7 @@ def get_notifications(request, id):
     for f in data:
         friendIDs.append(f.get('id'))
     
-    gifts = Gift.objects.filter(owner_id__in = friendIDs).values('id', 'owner_id', 'owner_name', 'name').order_by('-added_date')[:4]
+    gifts = Gift.objects.filter(owner_id__in = friendIDs).values('id', 'owner_id', 'owner_name', 'name', 'pic').order_by('-added_date')[:4]
     gifts = list(gifts)
 
     now = (datetime.now().replace(year=1900))
