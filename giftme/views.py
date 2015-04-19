@@ -6,6 +6,7 @@ import pytz
 import logging
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta, date
+from email.MIMEImage import MIMEImage
 from giftme.forms import GiftForm
 from giftme.models import Gift, Contribution, FacebookSession
 from django.template import RequestContext
@@ -48,7 +49,7 @@ def login(request):
 
 @csrf_exempt
 def wakeup(request):
-    supportedVersions = ['0.0.21']
+    supportedVersions = ['0.0.22', '0.0.21']
     logger = logging.getLogger('giftme')
     logger.debug('In wakeup function.')
     if request.method == 'POST':
@@ -249,6 +250,10 @@ def get_notifications(request, id):
         b['birthday'] = b['birthday'].strftime("%B %d")
     birthdays = list(birthdays)
     
+    time_period_week = datetime.now() - timedelta(days=7)
+    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period_week).values('userID', 'name').order_by('-joined_date')[:3]
+    recent_friends = list(recent_friends)
+    
     # Also add this user's id to the list, so that his/her contributions are also found.
     friendIDs.append(id)
 
@@ -263,10 +268,6 @@ def get_notifications(request, id):
     for c in contributions_from:
         if c['contributor_id'] == id:
             c['contributor_name'] = 'You'
-
-    time_period_week = datetime.now() - timedelta(days=7)
-    recent_friends = FacebookSession.objects.filter(userID__in = friendIDs, joined_date__gt=time_period_week).values('userID', 'name').order_by('-joined_date')[:3]
-    recent_friends = list(recent_friends)
 
     birthdays = json.dumps(birthdays)
     gifts = json.dumps(gifts)
@@ -293,12 +294,13 @@ def send_giftme_email(to, subject, content_name, variables, email_notifications_
         html_content = render_to_string('giftme/emails/' + content_name + '.html', variables)
         msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
         msg.attach_alternative(html_content, "text/html")
-        #msg.mixed_subtype = 'related'
-        #image = open(settings.STATIC_PATH + '/img/logo.png', 'rb')
-        #msg_img = MIMEImage(image.read())
-        #image.close()
-        #msg_img.add_header('Content-ID', 'logo.png')
-        #msg_img.add_header('From', 'Yanga')
-        #msg.attach(msg_img)
+
+        msg.mixed_subtype = 'related'
+        image = open(settings.STATIC_PATH + '/img/logo.png', 'rb')
+        msg_img = MIMEImage(image.read())
+        image.close()
+        msg_img.add_header('Content-ID', 'logo.png')
+        msg_img.add_header('From', 'GiftMe')
+        msg.attach(msg_img)
         msg.send()
     return

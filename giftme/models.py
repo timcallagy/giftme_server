@@ -8,6 +8,7 @@ class Gift(models.Model):
     url = models.CharField(max_length=1020, blank=False, null=False, default='') 
     pic = models.CharField(max_length=255, blank=False, null=False, default='') 
     price = models.FloatField(blank=False, null=False, default='0.0')
+    description = models.CharField(max_length=5000, blank=True, null=True, default='')
     crowdfunded = models.FloatField(blank=True, null=True, default='0')
     added_date =  models.DateTimeField(blank=False, null=False, default=datetime.now())
     def __unicode__(self):
@@ -23,7 +24,7 @@ class Contribution(models.Model):
     contributed_to = models.CharField(max_length=255, blank=False, null=False, default='')
     contributed_to_name = models.CharField(max_length=255, blank=False, null=False, default='')
     amount = models.FloatField(blank=True, null=True, default='0')
-    message = models.CharField(max_length=255, blank=True, null=True, default='')
+    message = models.CharField(max_length=5000, blank=True, null=True, default='')
     contribution_date = models.DateTimeField(blank=False, null=False, default=datetime.now())
     stripe_charge = models.CharField(max_length=255, blank=True, null=True, default='')
     def __unicode__(self):
