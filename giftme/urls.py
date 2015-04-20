@@ -14,4 +14,5 @@ urlpatterns = patterns('',
         url(r'^get_contributions/(?P<pk>[0-9]+)/$', views.get_contributions),
         url(r'^user_settings/(?P<id>[0-9]+)/$', views.user_settings),
         url(r'^get_notifications/(?P<id>[0-9]+)/$', views.get_notifications),
+        url(r'^web/$', views.web),
 )
