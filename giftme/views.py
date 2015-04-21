@@ -18,6 +18,7 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
+from django.shortcuts import render_to_response
 
 
 @csrf_exempt
@@ -277,6 +278,14 @@ def get_notifications(request, id):
     combined_data = {'contributions_to': contributions_to, 'contributions_from': contributions_from, 'recent_friends': recent_friends, 'gifts': gifts, 'birthdays': birthdays}
     return HttpResponse(json.dumps(combined_data))
 
+
+def web(request):
+    context = RequestContext(request)
+    if request.method == 'POST':
+        pass
+        # TO DO
+    else:
+        return render_to_response('giftme/index.html', {}, context) 
 
 
 ################################
