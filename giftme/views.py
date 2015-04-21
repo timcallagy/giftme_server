@@ -97,7 +97,8 @@ def add_gift(request):
                     gift.pic = pic_url
                     timestamp = datetime.utcnow().replace(tzinfo=pytz.utc)
                     gift.added_date = timestamp
-                    gift.owner_name = urllib2.unquote((request.POST['userName']).encode('ascii'))
+                    #gift.owner_name = urllib2.unquote((request.POST['userName']).encode('ascii'))
+                    gift.owner_name = facebookSession.name
                     gift.save()
                     return HttpResponse('true')
                 else:
@@ -154,8 +155,9 @@ def pay(request, pk):
                 stripe.api_key = settings.STRIPE_SECRET
                 token = request.POST['token']
                 amount = float(request.POST['amount'])
-                contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
-                contributed_to_name = urllib2.unquote((request.POST['contributed_to_name']).encode('ascii'))
+                #contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
+                contributor_name = facebookSession.name
+                #contributed_to_name = urllib2.unquote((request.POST['contributed_to_name']).encode('ascii'))
                 message = request.POST.get('message', '')
                 timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
                 try:
@@ -174,6 +176,7 @@ def pay(request, pk):
                 except Gift.DoesNotExist:
                     return HttpResponse('Error - Gift does not exist')
                 contributed_to = gift.owner_id
+                contributed_to_name = gift.owner_name
                 print('Contributed to:')
                 print(contributed_to_name)
                 contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=charge.id)
