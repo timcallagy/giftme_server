@@ -291,6 +291,12 @@ def web(request):
         return render_to_response('giftme/index.html', {}, context) 
 
 
+def privacy_policy(request):
+    context = RequestContext(request)
+    if request.method == 'GET':
+        return render_to_response('giftme/privacy_policy.html', {}, context) 
+
+
 ################################
 ###
 ### Functions
