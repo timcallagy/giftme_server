@@ -291,6 +291,11 @@ def web_gifts(request, id):
     return render(request, 'giftme/index.html', context) 
 
 
+def web_pay(request, id):
+    gift = Gift.objects.filter(id = id );
+    context = {'gift': gift}
+    return render(request, 'giftme/index.html', context) 
+
 
 ################################
 ###
