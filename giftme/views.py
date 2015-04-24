@@ -19,6 +19,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
+from django.shortcuts import render
 
 
 @csrf_exempt
@@ -281,11 +282,14 @@ def get_notifications(request, id):
 
 def web(request):
     context = RequestContext(request)
-    if request.method == 'POST':
-        pass
-        # TO DO
-    else:
-        return render_to_response('giftme/index.html', {}, context) 
+    return render_to_response('giftme/index.html', {}, context) 
+
+
+def web_gifts(request, id):
+    gifts = Gift.objects.filter(owner_id = id ).order_by('-crowdfunded');
+    context = {'gifts_list': gifts}
+    return render(request, 'giftme/index.html', context) 
+
 
 
 ################################

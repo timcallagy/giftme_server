@@ -55,8 +55,22 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>GiftMe </h1>
-        <p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
+        {% if gifts_list %}
+            <ul>
+            {% for gift in gifts_list %}
+                <li>{{ gift.name }}
+                <img src="{{gift.pic}}" />
+                <a href="{{gift.url}}" >{{gift.url}}</a>
+                </li>
+
+            <!--<li><a href="/polls/{{ question.id }}/">{{ question.question_text }}</a></li>-->
+            {% endfor %}
+            </ul>
+        {% else %}
+            <h1>GiftMe </h1>
+            <p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
+            <p>No gifts are available for the given user. Please check the link.</p>
+        {% endif %}
       </div>
 
     </div><!-- /.container -->
