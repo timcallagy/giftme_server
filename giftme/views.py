@@ -194,6 +194,62 @@ def pay(request, pk):
     else:
         return HttpResponse('Error - This should be a POST request')
 
+
+@csrf_exempt
+def pay_new(request, pk):
+    if request.method == 'POST':
+        try:
+            contributor_id = request.POST['contributor_id']
+            facebookSession = FacebookSession.objects.get(userID=contributor_id)
+            accessToken = request.POST['accessToken']
+            if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
+                token = request.POST['token']
+                amount = float(request.POST['amount'])
+                contributor_name = facebookSession.name
+                message = request.POST.get('message', '')
+                timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
+                payments_provider = request.POST['provider']
+                if payments_provider == "stripe":
+                    stripe.api_key = settings.STRIPE_SECRET
+                    try:
+                        charge = stripe.Charge.create(
+                                amount=int(amount*100),
+                                currency="usd",
+                                card=token,
+                                description="GiftMe payment"
+                                )
+                        payment_id = charge.id
+                    except stripe.CardError, ce:
+                        return HttpResponse(ce)
+                elif payments_provider == "paypal":
+                    payment_id = token
+
+                try:
+                    gift = Gift.objects.get(pk=pk)
+                    gift.crowdfunded += amount
+                    gift.save()
+                except Gift.DoesNotExist:
+                    return HttpResponse('Error - Gift does not exist')
+                contributed_to = gift.owner_id
+                contributed_to_name = gift.owner_name
+
+                ### Change name of "stripe_charge" below! ###
+
+                contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=payment_id)
+                contribution.save()
+                # Send notification email to gift receiver
+                receiver_session = FacebookSession.objects.get(userID=contributed_to)
+                if receiver_session.email:
+                    send_giftme_email(receiver_session.email, 'You have received a gift contribution!', 'gift_contribution', {'contributor_name': contributor_name, 'gift_name': gift.name, 'gift_amount': amount, 'message': message }, facebookSession.receiveEmails)
+                data = serializers.serialize('json', [contribution])
+                return HttpResponse(data)
+            else:
+                return HttpResponse('Error - not authorized')
+        except FacebookSession.DoesNotExist:
+            return HttpResponse('Error - not authenticated')
+    else:
+        return HttpResponse('Error - This should be a POST request')
+
 def get_contributions(request, pk):
     gift = Gift.objects.filter(pk = pk).values('id', 'owner_id', 'owner_name', 'name', 'price', 'crowdfunded', 'pic')
     gift = list(gift)
