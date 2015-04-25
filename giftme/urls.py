@@ -18,5 +18,6 @@ urlpatterns = patterns('',
         url(r'^web/$', views.web),
         url(r'^web/(?P<id>[0-9]+)/$', views.web_gifts),
         url(r'^web_pay/(?P<id>[0-9]+)/$', views.web_pay),
+        url(r'^web_pay_process/(?P<id>[0-9]+)/$', views.web_pay_process),
         url(r'^privacy_policy/$', views.privacy_policy),
 )
