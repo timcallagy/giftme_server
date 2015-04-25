@@ -156,9 +156,7 @@ def pay(request, pk):
                 stripe.api_key = settings.STRIPE_SECRET
                 token = request.POST['token']
                 amount = float(request.POST['amount'])
-                #contributor_name = urllib2.unquote((request.POST['contributor_name']).encode('ascii'))
                 contributor_name = facebookSession.name
-                #contributed_to_name = urllib2.unquote((request.POST['contributed_to_name']).encode('ascii'))
                 message = request.POST.get('message', '')
                 timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
                 try:
