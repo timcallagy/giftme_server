@@ -20,6 +20,7 @@
     <!-- Optional theme -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 
 
     <!-- Custom styles for this template -->
@@ -65,7 +66,11 @@
         {% if gifts_list %}
             {% for gift in gifts_list %}
                 <div class="row">
-                    <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% if 'http' in gift.pic %} 
+                        <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% else %}
+                        <div class="col-md-4"><a href="{{gift.url}}" ><img src="{% static gift.pic %}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% endif %}
                     <div class="col-md-8">
                         <p class="text-left">
                             <strong>{{ gift.name }}</strong> </br>
@@ -73,102 +78,73 @@
                             <strong>Price: </strong> {{gift.price}} </br>
                             <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
                             <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
-                            <a href="/web_pay/{{gift.id}}/">Contribute</a></br>
-                        </p>
-                    </div>
-                </div>
-            {% endfor %}
-        {% elif gift %}
-            {% for gift in gift %}
-                <div class="row">
-                    <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
-                    <div class="col-md-8">
-                        <p class="text-left">
-                            <strong>{{ gift.name }}</strong> </br>
-                            {{gift.description}} </br>
-                            <strong>Price: </strong> {{gift.price}} </br>
-                            <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
-                            <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
-                            <form>
-                                <div class="form-group">
-                                  <label for="personalMessage">Personal message</label>
-                                  <input type="text" class="form-control" id="personalMessage" >
-                                </div>
-                                <div class="form-group">
-                                  <label for="contributionAmount">Amount</label>
-                                   <select class="form-control" id="contributionAmount" >
-                                       <option>5</option>
-                                       <option>10</option>
-                                       <option>15</option>
-                                       <option>20</option>
-                                       <option>25</option>
-                                       <option>30</option>
-                                       <option>35</option>
-                                       <option>40</option>
-                                       <option>45</option>
-                                       <option>50</option>
-                                       <option>60</option>
-                                       <option>70</option>
-                                       <option>80</option>
-                                       <option>90</option>
-                                       <option>100</option>
-                                       <option>110</option>
-                                       <option>120</option>
-                                       <option>130</option>
-                                       <option>140</option>
-                                       <option>150</option>
-                                       <option>160</option>
-                                       <option>170</option>
-                                       <option>180</option>
-                                       <option>190</option>
-                                       <option>200</option>
-                                       <option>250</option>
-                                       <option>300</option>
-                                       <option>350</option>
-                                       <option>400</option>
-                                       <option>450</option>
-                                       <option>500</option>
-                                   </select>
-                                </div>
-                                <div class="form-group">
-                                  <label for="cardNumber">Card number</label>
-                                  <input type="text" id="cardNumber">
-                                </div>
-                                <div class="form-group">
-                                  <label for="">Expiry year</label>
-                                  <select  class="form-control" class="expiryYear" >
-                                    <option>2015</option>
-                                    <option>2016</option>
-                                    <option>2017</option>
-                                    <option>2018</option>
-                                    <option>2019</option>
-                                    <option>2020</option>
-                                    <option>2021</option>
-                                  </select>
-                                </div>
-                                <div class="form-group">
-                                  <label for="">Expiry month</label>
-                                  <select  class="form-control" class="expiryMonth" >
-                                    <option>Jan</option>
-                                    <option>Feb</option>
-                                    <option>Mar</option>
-                                    <option>Apr</option>
-                                    <option>May</option>
-                                    <option>Jun</option>
-                                    <option>Jul</option>
-                                    <option>Aug</option>
-                                    <option>Sep</option>
-                                    <option>Oct</option>
-                                    <option>Nov</option>
-                                    <option>Dec</option>
-                                  </select>
-                                </div>
-                                <button type="submit" class="btn btn-default">Submit</button>
+                            
+                            <form action="/web_pay/{{gift.id}}/" method="POST">{% csrf_token %}
+                               <label for="contributionAmount">Amount</label>
+                               <select class="form-control" name="contributionAmount" >
+                                   {% for amount in amounts %}
+                                        {% if amount <= gift.price %}
+                                            <option>{{ amount }}</option> 
+                                        {% endif %}
+                                   {% endfor %}
+                               </select>
+                               <input type="submit" value="Contribute" />
                             </form>
                         </p>
                     </div>
                 </div>
             {% endfor %}
+        {% elif gift_updated %}
+            <h2>Contribution to {{ gift_updated.name }} sucessful </h2>
+            <div class="row">
+                    {% if 'http' in gift_updated.pic %} 
+                        <div class="col-md-4"><a href="{{gift_updated.url}}" ><img src="{{gift_updated.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% else %}
+                        <div class="col-md-4"><a href="{{gift_updated.url}}" ><img src="{% static gift_updated.pic %}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% endif %}
+                    <div class="col-md-8">
+                        <p class="text-left">
+                            <strong>{{ gift_updated.name }}</strong> </br>
+                            {{gift.description}} </br>
+                            <strong>Price: </strong> {{gift_updated.price}} </br>
+                            <strong>Crowdfunded: </strong> {{gift_updated.crowdfunded}} </br>
+                            <strong>Vendor site: </strong> <a href="{{gift_updated.url}}" >Link</a></br>
+                        </p>
+                    </div>
+                </div>
+        {% elif gift %}
+                <div class="row">
+                    {% if 'http' in gift.pic %} 
+                        <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% else %}
+                        <div class="col-md-4"><a href="{{gift.url}}" ><img src="{% static gift.pic %}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    {% endif %}
+                    <div class="col-md-8">
+                        <p class="text-left">
+                            <strong>{{ gift.name }}</strong> </br>
+                            {{gift.description}} </br>
+                            <strong>Price: </strong> {{gift.price}} </br>
+                            <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
+                            <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
+
+                            <form action="/web_pay_process/{{ gift.id }}/" method="POST">{% csrf_token %}
+                             <label for="personalMessage">Personal message</label>
+                             <input type="text" class="form-control" name="personalMessage" >
+                             <label for="contributorName">Contributor name</label>
+                             <input type="text" class="form-control" name="contributorName" >
+                             <input type="hidden" name="contributedAmount" value="{{ displayAmount}}" >
+                             <script
+                                src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                                data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"
+                                data-name="GiftMe"
+                                data-amount="{{ amount }}"
+                                data-description="Contribute {{ displayAmount }} towards {{ gift.name }}"
+                                data-image:'{% static "img/header.png" %}'>
+                             </script>
+                          </form>
+                        </p>
+                    </div>
+                </div>
         {% else %}
             <h1>GiftMe </h1>
             <p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
@@ -182,7 +158,6 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->

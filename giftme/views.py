@@ -344,13 +344,49 @@ def web(request):
 
 def web_gifts(request, id):
     gifts = Gift.objects.filter(owner_id = id ).order_by('-crowdfunded');
-    context = {'gifts_list': gifts}
+    amounts = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 250, 300, 350, 400, 450, 500]
+    context = {'gifts_list': gifts, 'amounts': amounts}
     return render(request, 'giftme/index.html', context) 
 
 
 def web_pay(request, id):
-    gift = Gift.objects.filter(id = id );
-    context = {'gift': gift}
+    gift = Gift.objects.get(pk=id)
+
+    if request.method == 'POST':
+        contributionAmount = int(request.POST["contributionAmount"])
+        context = {'gift': gift, 'amount': contributionAmount * 100, 'displayAmount': contributionAmount} # multiply by 100 since stripe takes cents
+
+        #stripeToken = request.POST["stripeToken"]
+        #amount = request.POST["contributionAmount"]
+        #context = {'stripeToken': stripeToken, 'amount': amount}
+        #context = {'stripeToken': stripeToken}
+        #contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=payment_id)
+        #contribution.save()
+    #else:   
+    #    context = {'gift': gift}
+    return render(request, 'giftme/index.html', context) 
+
+
+def web_pay_process(request, id):
+    gift = Gift.objects.get(pk=id)
+
+    if request.method == 'POST':
+        stripeToken = request.POST["stripeToken"]
+        contributor_id = 0
+        contributor_name = request.POST["contributorName"]
+        contributed_to = gift.owner_id
+        contributed_to_name = gift.owner_name
+        amount = request.POST['contributedAmount'] 
+        message = request.POST['personalMessage'] 
+        timestamp = datetime.now()
+        gift.crowdfunded += int(amount)
+        gift.save()
+        contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=stripeToken)
+        contribution.save()
+        context = {'gift_updated': gift}
+    else:
+        context = {'gift': gift}
+
     return render(request, 'giftme/index.html', context) 
 
 
