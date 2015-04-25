@@ -7,13 +7,20 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="http://getbootstrap.com/favicon.ico">
+
+    {% load static %}
+    <link rel="icon" href="{% static "img/giftme_favicon.ico" %}">
 
     <title>GiftMe</title>
 
     <!-- Bootstrap core CSS -->
-    {% load static %}
-    <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap-theme.min.css">
+
+
 
     <!-- Custom styles for this template -->
     <link href="{% static "css/starter-template.css" %}" rel="stylesheet">
@@ -55,8 +62,118 @@
     <div class="container">
 
       <div class="starter-template">
-        <h1>GiftMe </h1>
-        <p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
+        {% if gifts_list %}
+            {% for gift in gifts_list %}
+                <div class="row">
+                    <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    <div class="col-md-8">
+                        <p class="text-left">
+                            <strong>{{ gift.name }}</strong> </br>
+                            {{gift.description}} </br>
+                            <strong>Price: </strong> {{gift.price}} </br>
+                            <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
+                            <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
+                            <a href="/web_pay/{{gift.id}}/">Contribute</a></br>
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% elif gift %}
+            {% for gift in gift %}
+                <div class="row">
+                    <div class="col-md-4"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div>
+                    <div class="col-md-8">
+                        <p class="text-left">
+                            <strong>{{ gift.name }}</strong> </br>
+                            {{gift.description}} </br>
+                            <strong>Price: </strong> {{gift.price}} </br>
+                            <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
+                            <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
+                            <form>
+                                <div class="form-group">
+                                  <label for="personalMessage">Personal message</label>
+                                  <input type="text" class="form-control" id="personalMessage" >
+                                </div>
+                                <div class="form-group">
+                                  <label for="contributionAmount">Amount</label>
+                                   <select class="form-control" id="contributionAmount" >
+                                       <option>5</option>
+                                       <option>10</option>
+                                       <option>15</option>
+                                       <option>20</option>
+                                       <option>25</option>
+                                       <option>30</option>
+                                       <option>35</option>
+                                       <option>40</option>
+                                       <option>45</option>
+                                       <option>50</option>
+                                       <option>60</option>
+                                       <option>70</option>
+                                       <option>80</option>
+                                       <option>90</option>
+                                       <option>100</option>
+                                       <option>110</option>
+                                       <option>120</option>
+                                       <option>130</option>
+                                       <option>140</option>
+                                       <option>150</option>
+                                       <option>160</option>
+                                       <option>170</option>
+                                       <option>180</option>
+                                       <option>190</option>
+                                       <option>200</option>
+                                       <option>250</option>
+                                       <option>300</option>
+                                       <option>350</option>
+                                       <option>400</option>
+                                       <option>450</option>
+                                       <option>500</option>
+                                   </select>
+                                </div>
+                                <div class="form-group">
+                                  <label for="cardNumber">Card number</label>
+                                  <input type="text" id="cardNumber">
+                                </div>
+                                <div class="form-group">
+                                  <label for="">Expiry year</label>
+                                  <select  class="form-control" class="expiryYear" >
+                                    <option>2015</option>
+                                    <option>2016</option>
+                                    <option>2017</option>
+                                    <option>2018</option>
+                                    <option>2019</option>
+                                    <option>2020</option>
+                                    <option>2021</option>
+                                  </select>
+                                </div>
+                                <div class="form-group">
+                                  <label for="">Expiry month</label>
+                                  <select  class="form-control" class="expiryMonth" >
+                                    <option>Jan</option>
+                                    <option>Feb</option>
+                                    <option>Mar</option>
+                                    <option>Apr</option>
+                                    <option>May</option>
+                                    <option>Jun</option>
+                                    <option>Jul</option>
+                                    <option>Aug</option>
+                                    <option>Sep</option>
+                                    <option>Oct</option>
+                                    <option>Nov</option>
+                                    <option>Dec</option>
+                                  </select>
+                                </div>
+                                <button type="submit" class="btn btn-default">Submit</button>
+                            </form>
+                        </p>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <h1>GiftMe </h1>
+            <p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
+            <p>No gifts are available for the given user. Please check the link.</p>
+        {% endif %}
       </div>
 
     </div><!-- /.container -->
@@ -66,7 +183,8 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="{% static "js/bootstrap.js" %}"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
     <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
     <script src="{% static "js/ie10-viewport-bug-workaround.js" %}"></script>
   

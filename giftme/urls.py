@@ -16,5 +16,7 @@ urlpatterns = patterns('',
         url(r'^user_settings/(?P<id>[0-9]+)/$', views.user_settings),
         url(r'^get_notifications/(?P<id>[0-9]+)/$', views.get_notifications),
         url(r'^web/$', views.web),
+        url(r'^web/(?P<id>[0-9]+)/$', views.web_gifts),
+        url(r'^web_pay/(?P<id>[0-9]+)/$', views.web_pay),
         url(r'^privacy_policy/$', views.privacy_policy),
 )
