@@ -79,17 +79,21 @@
                             <strong>Crowdfunded: </strong> {{gift.crowdfunded}} </br>
                             <strong>Vendor site: </strong> <a href="{{gift.url}}" >Link</a></br>
                             
-                            <form action="/web_pay/{{gift.id}}/" method="POST">{% csrf_token %}
-                               <label for="contributionAmount">Amount</label>
-                               <select class="form-control" name="contributionAmount" >
-                                   {% for amount in amounts %}
-                                        {% if amount <= gift.price %}
-                                            <option>{{ amount }}</option> 
-                                        {% endif %}
-                                   {% endfor %}
-                               </select>
-                               <input type="submit" value="Contribute" />
-                            </form>
+                            {% if gift.remaining > 0 %}
+                                <form action="/web_pay/{{gift.id}}/" method="POST">{% csrf_token %}
+                                   <label for="contributionAmount">Amount</label>
+                                   <select class="form-control" name="contributionAmount" >
+                                       {% for amount in gift.amounts %}
+                                            {% if amount <= gift.price %}
+                                                <option>{{ amount }}</option> 
+                                            {% endif %}
+                                       {% endfor %}
+                                   </select>
+                                   <input type="submit" value="Contribute" />
+                                </form>
+                            {% else %}
+                                <strong>Crowdfunding completed!</strong>
+                            {% endif %}
                         </p>
                     </div>
                 </div>
