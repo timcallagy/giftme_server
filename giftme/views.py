@@ -21,6 +21,7 @@ from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from django.shortcuts import render
 from django.shortcuts import redirect
+from numpy import asarray
 
 
 @csrf_exempt
@@ -204,7 +205,7 @@ def pay_new(request, pk):
             accessToken = request.POST['accessToken']
             if facebookSession.accessToken==accessToken and facebookSession.expiryTime > datetime.utcnow().replace(tzinfo=pytz.utc):
                 token = request.POST['token']
-                amount = float(request.POST['amount'])
+                amount = int(request.POST['amount'])
                 contributor_name = facebookSession.name
                 message = request.POST.get('message', '')
                 timestamp = datetime.fromtimestamp(float(request.POST['timestamp'])/1000)
@@ -343,28 +344,47 @@ def web(request):
     return render_to_response('giftme/index.html', {}, context) 
 
 
-def web_gifts(request, id):
-    gifts = Gift.objects.filter(owner_id = id ).order_by('-crowdfunded');
-    amounts = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 250, 300, 350, 400, 450, 500]
-    context = {'gifts_list': gifts, 'amounts': amounts}
+def web_gifts(request, id, gift_id):
+    """
+    Function to get specified gift(s) and return for display along with form with selection of appropriate amounts.
+
+    Parameters
+    ------------
+    id: int
+        Facebook userid which is the owner_id of the gift.
+    gift_id: int
+        Identifier of gift or 0 for all gifts from that owner.
+    """
+    if int(gift_id) > 0:
+        gifts = Gift.objects.filter(owner_id = id, id = gift_id).order_by('-crowdfunded');
+    else:
+        gifts = Gift.objects.filter(owner_id = id).order_by('-crowdfunded');
+    amounts = asarray([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 250, 300, 350, 400, 450, 500])
+    for gift in gifts:
+        gift.remaining = gift.price - gift.crowdfunded
+        valid_amounts = list(amounts[amounts <= gift.remaining])
+        if len(valid_amounts) > 0 and valid_amounts[-1] < (gift.remaining) : valid_amounts.append(gift.remaining)
+        gift.amounts = valid_amounts
+
+    context = {'gifts_list': gifts}
     return render(request, 'giftme/index.html', context) 
 
 
 def web_pay(request, id):
+    """
+    Function to process the form containg the amount field and render template which will display payment form with stripe payment button.
+
+    Parameters
+    -----------
+    id: int
+        The id of the gift to display details and form for.
+    """
     gift = Gift.objects.get(pk=id)
 
     if request.method == 'POST':
         contributionAmount = int(request.POST["contributionAmount"])
         context = {'gift': gift, 'amount': contributionAmount * 100, 'displayAmount': contributionAmount} # multiply by 100 since stripe takes cents
 
-        #stripeToken = request.POST["stripeToken"]
-        #amount = request.POST["contributionAmount"]
-        #context = {'stripeToken': stripeToken, 'amount': amount}
-        #context = {'stripeToken': stripeToken}
-        #contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic= gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=payment_id)
-        #contribution.save()
-    #else:   
-    #    context = {'gift': gift}
     return render(request, 'giftme/index.html', context) 
 
 
@@ -384,7 +404,9 @@ def web_pay_process(request, id):
         gift.save()
         contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=stripeToken)
         contribution.save()
-        #context = {'gift_updated': gift}
+        receiver_session = FacebookSession.objects.get(userID=contributed_to)
+        if receiver_session.email:
+            send_giftme_email(receiver_session.email, 'You have received a gift contribution!', 'gift_contribution', {'contributor_name': contributor_name, 'gift_name': gift.name, 'gift_amount': amount, 'message': message }, receiver_session.receiveEmails)
         return redirect('/web_pay_process/' + str(gift.id) + '/')
     elif request.method == 'GET':
         context = {'gift_updated': gift}

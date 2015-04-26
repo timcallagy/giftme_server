@@ -1,2 +1,2 @@
-{{ contributor_name }} contributed US$ {{ gift_amount }}0 to '{{ gift_name}}'!
+{{ contributor_name }} contributed US$ {{ gift_amount }} to '{{ gift_name}}'!
 {{ message }}
