@@ -133,6 +133,7 @@
                              <label for="contributorName">Contributor name</label>
                              <input type="text" class="form-control" name="contributorName" >
                              <input type="hidden" name="contributedAmount" value="{{ displayAmount}}" >
+                             <input type="hidden" name=giftID" value="{{ gift.id }}" >
                              <script
                                 src="https://checkout.stripe.com/checkout.js" class="stripe-button"
                                 data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"

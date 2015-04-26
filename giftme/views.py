@@ -20,6 +20,7 @@ from django.core.mail import EmailMultiAlternatives, send_mail
 from django.template.loader import render_to_string
 from django.shortcuts import render_to_response
 from django.shortcuts import render
+from django.shortcuts import redirect
 
 
 @csrf_exempt
@@ -385,11 +386,11 @@ def web_pay_process(request, id):
         gift.save()
         contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=stripeToken)
         contribution.save()
+        #context = {'gift_updated': gift}
+        return redirect('/web_pay_process/' + str(gift.id) + '/')
+    elif request.method == 'GET':
         context = {'gift_updated': gift}
-    else:
-        context = {'gift': gift}
-
-    return render(request, 'giftme/index.html', context) 
+        return render(request, 'giftme/index.html', context) 
 
 
 def privacy_policy(request):
