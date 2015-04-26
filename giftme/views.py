@@ -397,6 +397,8 @@ def web_pay_process(request, id):
         stripeToken = request.POST["stripeToken"]
         contributor_id = 0
         contributor_name = request.POST["contributorName"]
+        if contributor_name == '':
+            contributor_name = 'Someone'
         contributed_to = gift.owner_id
         contributed_to_name = gift.owner_name
         amount = request.POST['contributedAmount'] 
