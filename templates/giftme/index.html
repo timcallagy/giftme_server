@@ -5,9 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <meta name="description" content="">
     <meta name="author" content="">
-
+    
+    {% for gift in gifts_list %}
     <meta property="og:title" content="{{ gift.name }}" />
     <meta property="og:image" content="{{ gift.pic }}" />
     {% if gift.description %}
@@ -15,6 +15,7 @@
     {% else %}
     <meta property="og:description" content="GiftMe - Crowdfund gifts your friends will love!" />
     {% endif %}
+    {% endfor %}
 
     {% load static %}
     <link rel="icon" href="{% static "img/giftme_favicon.ico" %}">

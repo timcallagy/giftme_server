@@ -306,7 +306,7 @@ def get_notifications(request, id):
 
     now = (datetime.now().replace(year=1900))
     now_plus_1_month = now + timedelta(days=30)
-    birthdays = FacebookSession.objects.filter(birthday__gt = now, birthday__lt = now_plus_1_month).values('userID','name', 'birthday')
+    birthdays = FacebookSession.objects.filter(userID__in = friendIDs, birthday__gt = now, birthday__lt = now_plus_1_month).values('userID','name', 'birthday')
     for b in birthdays:
         b['birthday'] = b['birthday'].strftime("%B %d")
     birthdays = list(birthdays)
