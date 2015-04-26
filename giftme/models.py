@@ -14,6 +14,11 @@ class Gift(models.Model):
     def __unicode__(self):
         description = self.owner_name + " added '" + self.name + "' to their wishlist"
         return description
+    def formatPrices(self):
+        priceStr = 'USD $' + '{:.2f}'.format(self.price)
+        crowdfundedStr = 'USD $' + '{:.2f}'.format(self.crowdfunded)
+        self.priceStr = priceStr
+        self.crowdfundedStr = crowdfundedStr
 
 class Contribution(models.Model):
     gift = models.ForeignKey(Gift)

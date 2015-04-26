@@ -363,7 +363,8 @@ def web_gifts(request, id, gift_id):
         gifts = Gift.objects.filter(owner_id = id).order_by('-crowdfunded');
     amounts = asarray([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 250, 300, 350, 400, 450, 500])
     for gift in gifts:
-        gift.remaining = gift.price - gift.crowdfunded
+        gift.formatPrices()
+        gift.remaining = int(gift.price - gift.crowdfunded)
         valid_amounts = list(amounts[amounts <= gift.remaining])
         if len(valid_amounts) > 0 and valid_amounts[-1] < (gift.remaining) : valid_amounts.append(gift.remaining)
         gift.amounts = valid_amounts
@@ -382,6 +383,7 @@ def web_pay(request, id):
         The id of the gift to display details and form for.
     """
     gift = Gift.objects.get(pk=id)
+    gift.formatPrices()
 
     if request.method == 'POST':
         contributionAmount = int(request.POST["contributionAmount"])
@@ -392,6 +394,7 @@ def web_pay(request, id):
 
 def web_pay_process(request, id):
     gift = Gift.objects.get(pk=id)
+    gift.formatPrices()
 
     if request.method == 'POST':
         stripeToken = request.POST["stripeToken"]
