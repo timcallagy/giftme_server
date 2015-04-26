@@ -8,6 +8,14 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <meta property="og:title" content="{{ gift.name }}" />
+    <meta property="og:image" content="{{ gift.pic }}" />
+    {% if gift.description %}
+    <meta property="og:description" content="{{ gift.description }}" />
+    {% else %}
+    <meta property="og:description" content="GiftMe - Crowdfund gifts your friends will love!" />
+    {% endif %}
+
     {% load static %}
     <link rel="icon" href="{% static "img/giftme_favicon.ico" %}">
 
