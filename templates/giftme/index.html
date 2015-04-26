@@ -145,16 +145,16 @@
                              <label for="contributorName">Contributor name</label>
                              <input type="text" class="form-control" name="contributorName" >
                              <input type="hidden" name="contributedAmount" value="{{ displayAmount}}" >
-                             <input type="hidden" name=giftID" value="{{ gift.id }}" >
                              <script
                                 src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-                                data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"
+                                data-key="pk_live_rzB00nH8Ua6HTGoh77BGXtuy"
+                                /*data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"*/
                                 data-name="GiftMe"
                                 data-amount="{{ amount }}"
-                                data-description="Contribute {{ displayAmount }} towards {{ gift.name }}"
-                                data-image:'{% static "img/header.png" %}'>
+                                data-description="${{ displayAmount }} towards {{ gift.name }} for {{ gift.owner_name }}"
+                                data-image='{% static "img/header.png" %}'>
                              </script>
-                          </form>
+                           </form>
                         </p>
                     </div>
                 </div>
