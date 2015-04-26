@@ -1,11 +1,29 @@
 body {
-  padding-top: 50px;
+    padding-top: 50px;
 }
 .starter-template {
-  padding: 40px 15px;
-  text-align: left;
+    padding: 40px 15px;
+    text-align: left;
 }
 
 .text-center {
- text-align: center;
+    text-align: center;
+}
+
+.img-150px {
+    width: 150px;
+    height: 50px;
+}
+
+.logo {
+    height: 100%;
+    background-size: contain;
+    -moz-background-size: contain;
+    -webkit-background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.navbar-inverse {
+    background-image: linear-gradient(to bottom, #38242E 0px, #38242E 100%);
 }

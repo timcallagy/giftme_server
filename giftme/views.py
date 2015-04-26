@@ -367,7 +367,8 @@ def web_gifts(request, id, gift_id):
         if len(valid_amounts) > 0 and valid_amounts[-1] < (gift.remaining) : valid_amounts.append(gift.remaining)
         gift.amounts = valid_amounts
 
-    context = {'gifts_list': gifts}
+    owner_name = gifts[0].owner_name
+    context = {'gifts_list': gifts, 'owner_id': id, 'owner_name': owner_name}
     return render(request, 'giftme/index.html', context) 
 
 
@@ -382,6 +383,7 @@ def web_pay(request, id):
     """
     gift = Gift.objects.get(pk=id)
     gift.formatPrices()
+    gift.remaining = int(gift.price - gift.crowdfunded)
 
     if request.method == 'POST':
         contributionAmount = int(request.POST["contributionAmount"])
@@ -396,18 +398,31 @@ def web_pay_process(request, id):
 
     if request.method == 'POST':
         stripeToken = request.POST["stripeToken"]
+        amount = request.POST['contributedAmount'] 
+        print(int(amount)*100)
+        stripe.api_key = settings.STRIPE_SECRET
+        # The actual card charge happens here
+        try:
+            charge = stripe.Charge.create(
+                    amount=int(amount)*100,
+                    currency="usd",
+                    card=stripeToken,
+                    description="GiftMe payment"
+                    )
+            payment_id = charge.id
+        except stripe.CardError, ce:
+            return HttpResponse(ce)
         contributor_id = 0
         contributor_name = request.POST["contributorName"]
         if contributor_name == '':
             contributor_name = 'Someone'
         contributed_to = gift.owner_id
         contributed_to_name = gift.owner_name
-        amount = request.POST['contributedAmount'] 
         message = request.POST['personalMessage'] 
         timestamp = datetime.now()
         gift.crowdfunded += int(amount)
         gift.save()
-        contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=stripeToken)
+        contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=payment_id)
         contribution.save()
         receiver_session = FacebookSession.objects.get(userID=contributed_to)
         if receiver_session.email:
