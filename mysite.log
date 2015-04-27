@@ -82,3 +82,9 @@
 [26/Apr/2015 21:12:15] DEBUG [giftme:58] In wakeup function.
 [26/Apr/2015 21:12:15] DEBUG [giftme:61] Client version: 0.0.22.
 [26/Apr/2015 21:12:15] DEBUG [giftme:63] Supported client version: 0.0.22.
+[27/Apr/2015 18:19:13] DEBUG [giftme:58] In wakeup function.
+[27/Apr/2015 18:19:13] DEBUG [giftme:61] Client version: 0.0.23.
+[27/Apr/2015 18:19:13] DEBUG [giftme:63] Supported client version: 0.0.23.
+[27/Apr/2015 18:19:17] DEBUG [giftme:58] In wakeup function.
+[27/Apr/2015 18:19:17] DEBUG [giftme:61] Client version: 0.0.23.
+[27/Apr/2015 18:19:17] DEBUG [giftme:63] Supported client version: 0.0.23.
