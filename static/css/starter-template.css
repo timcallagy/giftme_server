@@ -27,3 +27,57 @@ body {
 .navbar-inverse {
     background-image: linear-gradient(to bottom, #38242E 0px, #38242E 100%);
 }
+
+.alert-blue-green {
+  color: #00A0B0;
+  background-color: #CCECEF;
+  border-color: #00A0B0;
+}
+.alert-blue-green hr {
+  border-top-color: #c9e2b3;
+}
+.alert-blue-green .alert-link {
+  color: #2b542c;
+}
+
+.btn-blue-green {
+  color: #fff;
+  background-color: #00A0B0;
+  border-color: #00A0B0;
+}
+.btn-blue-green:hover,
+.btn-blue-green:focus,
+.btn-blue-green.focus,
+.btn-blue-green:active,
+.btn-blue-green.active,
+.open > .dropdown-toggle.btn-blue-green {
+  color: #fff;
+  background-color: #00707B;
+  border-color: #00707B;
+}
+.btn-blue-green:active,
+.btn-blue-green.active,
+.open > .dropdown-toggle.btn-blue-green {
+  background-image: none;
+}
+.btn-blue-green.disabled,
+.btn-blue-green[disabled],
+fieldset[disabled] .btn-blue-green,
+.btn-blue-green.disabled:hover,
+.btn-blue-green[disabled]:hover,
+fieldset[disabled] .btn-blue-green:hover,
+.btn-blue-green.disabled:focus,
+.btn-blue-green[disabled]:focus,
+fieldset[disabled] .btn-blue-green:focus,
+.btn-blue-green.disabled.focus,
+.btn-blue-green[disabled].focus,
+fieldset[disabled] .btn-blue-green.focus,
+.btn-blue-green.disabled:active,
+.btn-blue-green[disabled]:active,
+fieldset[disabled] .btn-blue-green:active,
+.btn-blue-green.disabled.active,
+.btn-blue-green[disabled].active,
+fieldset[disabled] .btn-blue-green.active {
+  background-color: #00707B;
+  border-color: #00707B;
+}
