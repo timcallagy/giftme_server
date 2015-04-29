@@ -7,6 +7,7 @@
 <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
 <meta name="author" content="">
 
+{% if gifts_list.count == 1 %}
 {% for gift in gifts_list %}
 <meta property="og:title" content="{{ gift.name }}" />
 <meta property="og:image" content="{{ gift.pic }}" />
@@ -16,6 +17,17 @@
 <meta property="og:description" content="GiftMe - Crowdfund gifts your friends will love!" />
 {% endif %}
 {% endfor %}
+{% else %}
+{% for gift in gifts_list %}
+<meta property="og:title" content="View {{ gift.owner_name }}'s full Wishlist" />
+<meta property="og:image" content="{{ gift.pic }}" />
+{% if gift.description %}
+<meta property="og:description" content="{{ gift.name }} - {{ gift.description }}" />
+{% else %}
+<meta property="og:description" content="GiftMe - Crowdfund gifts your friends will love!" />
+{% endif %}
+{% endfor %}
+{% endif %}
 
 {% if gift %}
 <meta property="og:title" content="{{ gift.name }}" />
