@@ -53,7 +53,7 @@ def login(request):
 
 @csrf_exempt
 def wakeup(request):
-    supportedVersions = ['0.0.22', '0.0.23']
+    supportedVersions = ['0.0.23', '0.0.24']
     logger = logging.getLogger('giftme')
     logger.debug('In wakeup function.')
     if request.method == 'POST':
