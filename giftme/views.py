@@ -84,6 +84,8 @@ def add_gift(request):
                 add_gift_form = GiftForm(data=request.POST)
                 if add_gift_form.is_valid():
                     gift = add_gift_form.save(commit=False)
+                    if "www.amazon." not in gift.url:
+                        return HttpResponse('Not Amazon')
                     if not gift.url.startswith("http"):
                         gift.url = "http://" + gift.url
                     try:
@@ -121,7 +123,7 @@ def get_gifts(request, id):
 
 def get_gift(request, pk):
     try:
-        gift = Gift.objects.get(pk = pk );
+        gift = Gift.objects.get(pk = pk )
     except Gift.DoesNotExist:
         return HttpResponse('Gift does not exist')
     data = serializers.serialize('json', [gift])
