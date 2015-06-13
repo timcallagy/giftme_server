@@ -437,6 +437,7 @@ def web_pay_process(request, id):
         return render(request, 'giftme/index.html', context) 
 
 
+@csrf_exempt
 def notification_of_facebook_share(request):
     if request.method == 'POST':
         userID = request.POST["userID"]
