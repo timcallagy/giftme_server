@@ -444,6 +444,9 @@ def notification_of_facebook_share(request):
         try:
             session = FacebookSession.objects.get(userID=userID)
             send_giftme_email('timcallagy@gmail.com', session.name + ': ' + shareType, 'blank', {}, True) 
+            return HttpResponse('Success')
+        except:
+            return HttpResponse('Failure')
 
 
 def privacy_policy(request):
