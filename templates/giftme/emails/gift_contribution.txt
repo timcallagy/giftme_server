@@ -1,2 +1,1 @@
-{{ contributor_name }} contributed US$ {{ gift_amount }} to {{ gift_name}}!
-{{ message }}
+<message is in the Email Subject>

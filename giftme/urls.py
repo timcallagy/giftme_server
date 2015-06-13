@@ -20,4 +20,5 @@ urlpatterns = patterns('',
         url(r'^web_pay/(?P<id>[0-9]+)/$', views.web_pay),
         url(r'^web_pay_process/(?P<id>[0-9]+)/$', views.web_pay_process),
         url(r'^privacy_policy/$', views.privacy_policy),
+        url(r'^notification_of_facebook_share/$', views.notification_of_facebook_share),
 )

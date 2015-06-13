@@ -220,3 +220,48 @@
 [08/Jun/2015 20:52:15] DEBUG [giftme:58] In wakeup function.
 [08/Jun/2015 20:52:15] DEBUG [giftme:61] Client version: 0.0.24.
 [08/Jun/2015 20:52:15] DEBUG [giftme:63] Supported client version: 0.0.24.
+[12/Jun/2015 21:18:19] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:18:20] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:18:20] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:18:50] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:18:50] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:18:50] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:19:01] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:19:01] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:19:01] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:19:49] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:19:49] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:19:49] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:20:52] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:20:52] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:20:52] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:21:34] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:21:34] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:21:34] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:21:49] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:21:49] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:21:49] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:22:10] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:22:10] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:22:10] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:22:24] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:22:24] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:22:24] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:24:09] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:24:09] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:24:09] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:24:33] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:24:33] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:24:33] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:24:46] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:24:46] DEBUG [giftme:61] Client version: 0.0.24.
+[12/Jun/2015 21:24:46] DEBUG [giftme:66] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:30:21] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:30:21] DEBUG [giftme:63] Client version: 0.0.24.
+[12/Jun/2015 21:30:21] DEBUG [giftme:68] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:31:09] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:31:09] DEBUG [giftme:63] Client version: 0.0.24.
+[12/Jun/2015 21:31:09] DEBUG [giftme:68] Unsupported client version: 0.0.24.
+[12/Jun/2015 21:34:43] DEBUG [giftme:58] In wakeup function.
+[12/Jun/2015 21:34:43] DEBUG [giftme:63] Client version: 0.0.25.
+[12/Jun/2015 21:34:43] DEBUG [giftme:65] Supported client version: 0.0.25.

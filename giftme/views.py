@@ -56,8 +56,10 @@ def wakeup(request):
     supportedVersions = ['0.0.25']
     logger = logging.getLogger('giftme')
     logger.debug('In wakeup function.')
+    print('in wakeup')
     if request.method == 'POST':
         clientVersion = request.POST['clientVersion']
+        print(clientVersion)
         logger.debug('Client version: ' + str(clientVersion) + '.')
         if clientVersion in supportedVersions:
             logger.debug('Supported client version: ' + str(clientVersion) + '.')
@@ -433,6 +435,15 @@ def web_pay_process(request, id):
     elif request.method == 'GET':
         context = {'gift_updated': gift}
         return render(request, 'giftme/index.html', context) 
+
+
+def notification_of_facebook_share(request):
+    if request.method == 'POST':
+        userID = request.POST["userID"]
+        shareType = request.POST["shareType"]
+        try:
+            session = FacebookSession.objects.get(userID=userID)
+            send_giftme_email('timcallagy@gmail.com', session.name + ': ' + shareType, 'blank', {}, True) 
 
 
 def privacy_policy(request):
