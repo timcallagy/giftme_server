@@ -1,0 +1,75 @@
+{% extends 'giftme/base.html' %}
+
+{% load static %}
+
+{% block body %}
+
+<div class="row">
+    <h3 class="text-center">{{ gift.name }} for {{ gift.owner_name }}</h3> 
+    {% if 'http' in gift.pic %} 
+    <div class="col-md-2 col-md-offset-2 text-center"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div><br>
+    {% else %}
+    <div class="col-md-2 col-md-offset-2 text-center"><a href="{{gift.url}}" ><img src="{% static gift.pic %}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div><br>
+    {% endif %}
+    <div class="col-md-6">
+        <p class="text-left">
+        {% if gift.description %}
+        {{gift.description}} </br>
+        {% endif %}
+        </p>
+        <p class="text-left">
+        {% if gift.remaining > 0 %}
+        <div class="USD">
+            <strong>Price: </strong> {{gift.priceStr}} </br>
+            <strong>Your Gift: USD $</strong> {{ displayAmountUSD }} </br>
+
+            <form action="/web_pay_process/{{ gift.id }}/" method="POST">{% csrf_token %}
+                <textarea type="text" class="form-control" name="personalMessage" placeholder="Personal message" rows="4" cols="50"></textarea>
+                <br>
+                <input type="text" class="form-control" name="contributorName"  placeholder="Your name" >
+                <br>
+                <input type="hidden" name="contributedAmount" value="{{ displayAmountUSD }}">
+                <input type="hidden" name="currency" value="usd">
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="pk_live_rzB00nH8Ua6HTGoh77BGXtuy"*/
+                    /*data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"*/
+                    data-name="GiftMe"
+                    data-amount="{{ amountUSD }}"
+                    data-description="${{ displayAmountUSD }} towards {{ gift.name }} for {{ gift.owner_name }}"
+                    data-image='{% static "img/header.png" %}'>
+                </script>
+            </form>
+        </div>
+        <div class="EUR">
+            <strong>Price: </strong> {{gift.priceStrEUR}} </br>
+            <strong>Your Gift: </strong> EUR {{ displayAmountEUR }} </br>
+
+            <form action="/web_pay_process/{{ gift.id }}/" method="POST">{% csrf_token %}
+                <textarea type="text" class="form-control" name="personalMessage" placeholder="Personal message" rows="4" cols="50"></textarea>
+                <br>
+                <input type="text" class="form-control" name="contributorName"  placeholder="Your name" >
+                <br>
+                <input type="hidden" name="contributedAmount" value="{{ displayAmountEUR }}">
+                <input type="hidden" name="currency" value="EUR">
+                <script
+                    src="https://checkout.stripe.com/checkout.js" class="stripe-button"
+                    data-key="pk_live_rzB00nH8Ua6HTGoh77BGXtuy"
+                    /*data-key="pk_test_iQi63h5Zd5LyKJGOMGUYxRvp"*/
+                    data-name="GiftMe"
+                    data-amount="{{ amountEUR }}"
+                    data-currency="eur"
+                    data-description="€{{ displayAmountEUR }} towards {{ gift.name }} for {{ gift.owner_name }}"
+                    data-image='{% static "img/header.png" %}'>
+                </script>
+            </form>
+        </div>
+        {% else %}
+        <strong>Price: </strong> {{gift.priceStr}} </br>
+        <div class="alert alert-success"><strong>Crowdfunding completed!</strong></div>
+        {% endif %}
+        </p>
+    </div>
+</div>
+
+{% endblock%}

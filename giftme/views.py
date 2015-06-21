@@ -348,32 +348,44 @@ def web(request):
     return render_to_response('giftme/index.html', {}, context) 
 
 
-def web_gifts(request, id, gift_id):
+def web_gift_list(request, id):
     """
-    Function to get specified gift(s) and return for display along with form with selection of appropriate amounts.
+    Function to get gift list and return for display along with form with selection of appropriate amounts.
 
     Parameters
     ------------
     id: int
         Facebook userid which is the owner_id of the gift.
-    gift_id: int
-        Identifier of gift or 0 for all gifts from that owner.
     """
-    if int(gift_id) > 0:
-        gifts = Gift.objects.filter(owner_id = id, id = gift_id).order_by('-crowdfunded');
-    else:
-        gifts = Gift.objects.filter(owner_id = id).order_by('-crowdfunded');
-    amounts = asarray([5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 250, 300, 350, 400, 450, 500])
+    gifts = Gift.objects.filter(owner_id = id).order_by('-crowdfunded');
     for gift in gifts:
-        gift.formatPrices()
-        gift.remaining = int(gift.price - gift.crowdfunded)
-        valid_amounts = list(amounts[amounts <= gift.remaining])
-        if len(valid_amounts) > 0 and valid_amounts[-1] < (gift.remaining) : valid_amounts.append(gift.remaining)
-        gift.amounts = valid_amounts
+        gift.formatPricesUSD()
+        gift.formatPricesEUR(usd_to_eur_rate())
+        gift.add_valid_amountsUSD()
+        gift.add_valid_amountsEUR(usd_to_eur_rate())
+        gift.priceEUR = gift.price*usd_to_eur_rate()
+    session = FacebookSession.objects.get(userID=id)
+    context = {'gifts_list': gifts, 'owner_id': id, 'owner_name': session.name}
+    return render(request, 'giftme/gift_list.html', context) 
 
-    owner_name = gifts[0].owner_name
-    context = {'gifts_list': gifts, 'owner_id': id, 'owner_name': owner_name}
-    return render(request, 'giftme/index.html', context) 
+
+def web_gift(request, gift_id):
+    """
+    Function to get specified gift and return for display along with form with selection of appropriate amounts.
+
+    Parameters
+    ------------
+    gift_id: int
+        Identifier of gift. 
+    """
+    gift = Gift.objects.get(id = gift_id)
+    gift.formatPricesUSD()
+    gift.formatPricesEUR(usd_to_eur_rate())
+    gift.add_valid_amountsUSD()
+    gift.add_valid_amountsEUR(usd_to_eur_rate())
+    gift.priceEUR = gift.price*usd_to_eur_rate()
+    context = {'gifts_list': [gift], 'owner_id': gift.owner_id, 'owner_name': gift.owner_name}
+    return render(request, 'giftme/gift_list.html', context) 
 
 
 def web_pay(request, id):
@@ -386,30 +398,41 @@ def web_pay(request, id):
         The id of the gift to display details and form for.
     """
     gift = Gift.objects.get(pk=id)
-    gift.formatPrices()
-    gift.remaining = int(gift.price - gift.crowdfunded)
+    gift.formatPricesUSD()
+    gift.formatPricesEUR(usd_to_eur_rate())
+    gift.remaining = float(gift.price - gift.crowdfunded)
 
     if request.method == 'POST':
-        contributionAmount = int(request.POST["contributionAmount"])
-        context = {'gift': gift, 'amount': contributionAmount * 100, 'displayAmount': contributionAmount} # multiply by 100 since stripe takes cents
+        contributionAmount = float(request.POST["contributionAmount"])
+        currency = request.POST["currency"]
+        rate = usd_to_eur_rate()
+        if currency == "USD":
+            contributionAmountUSD = contributionAmount
+            contributionAmountEUR = contributionAmount*rate
+        else: 
+            contributionAmountUSD = contributionAmount/rate
+            contributionAmountEUR = contributionAmount
+        context = {'gift': gift, 'amountUSD': contributionAmountUSD * 100, 'displayAmountUSD': "{0:.2f}".format(contributionAmountUSD), 'amountEUR': contributionAmountEUR * 100, 'displayAmountEUR': "{0:.2f}".format(contributionAmountEUR), 'currency': currency} # multiply by 100 since stripe takes cents
 
-    return render(request, 'giftme/index.html', context) 
+    return render(request, 'giftme/pay.html', context) 
 
 
 def web_pay_process(request, id):
     gift = Gift.objects.get(pk=id)
-    gift.formatPrices()
+    gift.formatPricesUSD()
+    gift.formatPricesEUR(usd_to_eur_rate())
 
     if request.method == 'POST':
         stripeToken = request.POST["stripeToken"]
-        amount = request.POST['contributedAmount'] 
-        print(int(amount)*100)
+        amount = float(request.POST['contributedAmount'])
+        currency = request.POST['currency'] 
+        print(int(amount*100))
         stripe.api_key = settings.STRIPE_SECRET
         # The actual card charge happens here
         try:
             charge = stripe.Charge.create(
-                    amount=int(amount)*100,
-                    currency="usd",
+                    amount=int(amount*100),
+                    currency=currency,
                     card=stripeToken,
                     description="GiftMe payment"
                     )
@@ -424,7 +447,9 @@ def web_pay_process(request, id):
         contributed_to_name = gift.owner_name
         message = request.POST['personalMessage'] 
         timestamp = datetime.now()
-        gift.crowdfunded += int(amount)
+        if currency == "EUR":
+            amount = amount/usd_to_eur_rate()
+        gift.crowdfunded += amount
         gift.save()
         contribution = Contribution(gift=gift, gift_name= gift.name, gift_pic=gift.pic, contributor_id=contributor_id, contributor_name=contributor_name, contributed_to=contributed_to, contributed_to_name=contributed_to_name, amount=amount, message=message, contribution_date=timestamp, stripe_charge=payment_id)
         contribution.save()
@@ -434,7 +459,7 @@ def web_pay_process(request, id):
         return redirect('/web_pay_process/' + str(gift.id) + '/')
     elif request.method == 'GET':
         context = {'gift_updated': gift}
-        return render(request, 'giftme/index.html', context) 
+        return render(request, 'giftme/pay_processed.html', context) 
 
 
 @csrf_exempt
@@ -481,3 +506,13 @@ def send_giftme_email(to, subject, content_name, variables, email_notifications_
         msg.attach(msg_img)
         msg.send()
     return
+
+def usd_to_eur_rate():
+    exchange_rates = requests.get('https://api.fixer.io/latest?base=USD', headers={'Accept': 'application/json'}).json()
+    return exchange_rates["rates"]["EUR"]
+
+def usd_to_eur(usd_amount):
+    exchange_rates = requests.get('https://api.fixer.io/latest', headers={'Accept': 'application/json'}).json()
+    usd_eur_price = exchange_rates["rates"]["USD"]
+    return "{0:.2f}".format(usd_amount/usd_eur_price)
+

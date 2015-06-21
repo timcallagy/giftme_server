@@ -1,0 +1,79 @@
+{% extends 'giftme/base.html' %}
+
+{% load static %}
+
+{% block body %}
+{% if gifts_list %}
+<div class=text-center>
+    <h2>{{ owner_name }}'s Wishlist</h2>
+    <img src="http://graph.facebook.com/{{ owner_id }}/picture?width=100&height=100" class="img-thumbnail"> 
+</div>
+<br>
+{% for gift in gifts_list %}
+<div class="row">
+    <h3 class="text-center">{{ gift.name }}</h3> 
+    {% if 'http' in gift.pic %} 
+    <div class="col-md-2 col-md-offset-2 text-center"><a href="{{gift.url}}" ><img src="{{gift.pic}}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div><br>
+    {% else %}
+    <div class="col-md-2 col-md-offset-2 text-center"><a href="{{gift.url}}" ><img src="{% static gift.pic %}" class="img-thumbnail" alt="Responsive image" width="150px" /></a></div><br>
+    {% endif %}
+    <div class="col-md-6">
+        <p class="text-left">
+        {% if gift.description %}
+        {{gift.description}} </br>
+        {% endif %}
+        </p>
+        <p class="text-left">
+        {% if gift.remaining > 0 %}
+        <div class="USD">
+            <strong>Price: </strong> {{gift.priceStr}} </br>
+            <strong>Crowdfunded: </strong> {{gift.crowdfundedStr}} </br>
+            <form action="/web_pay/{{gift.id}}/" method="POST" class="form-inline">{% csrf_token %}
+                <label for="contributionAmount">Your gift (USD $): </label>
+                <select class="form-control" name="contributionAmount" >
+                    {% for amount in gift.amounts %}
+                    {% if amount <= gift.price %}
+                    <option>{{ amount }}</option> 
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="currency" value="USD"> 
+                <button type="submit" class="btn btn-primary" type="button">Give gift</button>
+            </form>
+        </div>
+        <div class="EUR" style="display:none;">
+            <strong>Price: </strong> {{gift.priceStrEUR}} </br>
+            <strong>Crowdfunded: </strong> {{gift.crowdfundedStrEUR}} </br>
+            <form action="/web_pay/{{gift.id}}/" method="POST" class="form-inline">{% csrf_token %}
+                <label for="contributionAmount">Your gift (EUR): </label>
+                <select class="form-control" name="contributionAmount" >
+                    {% for amount in gift.amountsEUR %}
+                    {% if amount <= gift.priceEUR %}
+                    <option>{{ amount }}</option> 
+                    {% endif %}
+                    {% endfor %}
+                </select>
+                <input type="hidden" name="currency" value="EUR"> 
+                <button type="submit" class="btn btn-primary" type="button">Give gift</button>
+            </form>
+        </div>
+        {% else %}
+        <div class="USD">
+            <strong>Price: </strong> {{gift.priceStr}} </br>
+        </div>
+        <div class="EUR">
+            <strong>Price: </strong> {{gift.priceStrEUR}} </br>
+        </div>
+        <div class="alert alert-success"><strong>Crowdfunding completed!</strong></div>
+        {% endif %}
+        </p>
+    </div>
+</div>
+<br>
+{% endfor %}
+{% else %}
+<h1>GiftMe </h1>
+<p class="lead">A fun and easy way to crowdfund gifts your friends will love.</p>
+<p>No gifts are available for the given user. Please check the link.</p>
+{% endif %}
+{% endblock %}
